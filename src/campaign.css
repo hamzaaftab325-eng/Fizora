@@ -1,7 +1,5 @@
 /* Campaign art surrounds the live product; it never replaces the rotating mesh. */
 .splash-stage{position:absolute;left:71.5%;top:50%;height:min(92vh,1000px);aspect-ratio:1;transform:translate(-50%,-50%) rotate(var(--splash-roll,0rad)) scale(var(--splash-push,1));will-change:transform;pointer-events:none}
-.splash-art{width:100%;height:100%;object-fit:contain;opacity:.85;animation:water-sway 9s ease-in-out infinite;filter:drop-shadow(0 12px 14px #002b3218)}
-@keyframes water-sway{0%,100%{transform:translateY(6px) rotate(-3deg) scale(.97)}50%{transform:translateY(-8px) rotate(2deg) scale(1)}}
 .can-stage>canvas{position:absolute;inset:0}
 .fresh-fruit{position:absolute;width:48%;height:38%;right:-8%;bottom:-3%;transform:rotate(-12deg)}
 .fresh-fruit img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .65s;filter:drop-shadow(0 16px 10px #072d3533)}
@@ -22,8 +20,6 @@
 .collection{background:#f5f3e8;padding-top:18px}
 .collection-heading em{color:#548448}
 .flavor-card{border-radius:24px;background:radial-gradient(ellipse at 30% 25%,#ffffff42,transparent 65%),var(--card-bg)}
-.card-art:before{content:'';position:absolute;inset:0;background:url('/images/ice-splash.webp') center/contain no-repeat;opacity:.5;transform:scale(1.15) rotate(-12deg);transition:transform .8s}
-.flavor-card:hover .card-art:before{transform:scale(1.23) rotate(-5deg)}
 .card-orbit{opacity:.08}
 .card-copy h3{font-weight:800;font-style:italic}
 .flavor-detail{padding:30px;border-radius:24px;background:#e8ebdc;border:0}
@@ -34,7 +30,6 @@
 @media(max-width:760px){
  .splash-stage{height:min(56svh,500px);width:auto;max-width:125vw}
  .fresh-fruit{width:42%;right:0;bottom:-2%}
- .splash-art{opacity:.72}
  .display{font-style:italic}
  .flavor-info>p{font-size:12px}
  .flavor-info .text-link{padding:12px 18px;margin-top:14px}
@@ -45,5 +40,5 @@
  .flavor-detail>div{min-width:180px}
  .flavor-detail .pill-button{margin-left:0}
 }
-@media(prefers-reduced-motion:reduce){.splash-art{animation:none}.fresh-fruit img{transition:none}}
 @media(min-width:761px){.theme-berry .fresh-fruit{right:auto;left:-8%}.splash-stage{height:min(84vh,940px)}}
+@media(prefers-reduced-motion:reduce){.fresh-fruit img{transition:none}}

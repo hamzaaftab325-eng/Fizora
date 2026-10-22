@@ -64,17 +64,21 @@ Images are local WebP assets with their original dimensions and transparency pre
 
 FIZORA is a presentation concept, not an ecommerce checkout. Nutrition, ingredients, production details, and barcode values are explicitly marked as pending in the packaging artwork. Replace those placeholders with approved product specifications before using the labels for manufacturing.
 
-### Campaign visual update
+### Product rendering
 
-The rotating Three.js can and the image fallback share the same continuous
-front/back label artwork. The campaign update adds sweeping flavor ribbons,
-480 instanced condensation droplets, stronger lacquer highlights, and a reusable
-transparent ice/splash photographic layer with gently animated depth. The splash
-is composited imagery; the can remains live 3D where WebGL is available. Existing
-click ripples, water simulation, pause control, and reduced-motion support remain.
+The Three.js scene uses a fully modeled can with 620 instanced condensation beads,
+a machined lid and pull tab, continuous front/back labels, and a procedural studio
+lighting environment. Four independently moving rounded ice meshes include internal
+fracture lines and trapped air pockets. Ice and water beads refract a shared scene
+capture at half resolution; geometry and materials are reused between cubes.
 
-`public/images/ice-splash.webp` was generated with the built-in image-generation
-tool, then encoded as WebP with alpha. Prompt: "Photorealistic clear water splash
-with five transparent melting ice cubes, isolated on true transparent background;
-large empty central opening for a separately rendered beverage can; silver-white
-studio highlights, fractured ice, sharp droplets; no text, fruit, cans or backdrop."
+Ice is entirely geometry and shaders. The previous photographic ice/splash overlay
+has been removed, including from collection cards. Procedural SVG studio backgrounds
+contain only gradients; fruit artwork remains on the labels and beside the product.
+Click ripples and cube impulses share the page's animation clock. Pausing motion or
+using reduced motion freezes the ambient scene. Without WebGL the page displays the
+matching front/back can images and omits the 3D ice, with no fake ice-image fallback.
+
+Validation: production build, wave/buoyancy simulation tests, geometry bounds and UV
+checks. The cloud preview has WebGL disabled, so final GPU appearance must be reviewed
+in a WebGL-capable browser; successful compilation is not a visual quality guarantee.
