@@ -1,0 +1,24 @@
+{
+  "name": "fizora",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 4173",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "test": "node --test src/*.test.js"
+  },
+  "dependencies": {
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "three": "0.160.0"
+  },
+  "devDependencies": {
+    "vite": "6.3.6"
+  },
+  "packageManager": "pnpm@10.11.0",
+  "engines": {
+    "node": "22.x"
+  }
+}
