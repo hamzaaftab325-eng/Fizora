@@ -63,3 +63,18 @@ Images are local WebP assets with their original dimensions and transparency pre
 ## Product content
 
 FIZORA is a presentation concept, not an ecommerce checkout. Nutrition, ingredients, production details, and barcode values are explicitly marked as pending in the packaging artwork. Replace those placeholders with approved product specifications before using the labels for manufacturing.
+
+### Campaign visual update
+
+The rotating Three.js can and the image fallback share the same continuous
+front/back label artwork. The campaign update adds sweeping flavor ribbons,
+480 instanced condensation droplets, stronger lacquer highlights, and a reusable
+transparent ice/splash photographic layer with gently animated depth. The splash
+is composited imagery; the can remains live 3D where WebGL is available. Existing
+click ripples, water simulation, pause control, and reduced-motion support remain.
+
+`public/images/ice-splash.webp` was generated with the built-in image-generation
+tool, then encoded as WebP with alpha. Prompt: "Photorealistic clear water splash
+with five transparent melting ice cubes, isolated on true transparent background;
+large empty central opening for a separately rendered beverage can; silver-white
+studio highlights, fractured ice, sharp droplets; no text, fruit, cans or backdrop."

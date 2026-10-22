@@ -11,7 +11,7 @@ function addCan(scene,textures){
  const group=new THREE.Group();scene.add(group);
  const metal=new THREE.MeshStandardMaterial({color:0xe4e8e8,metalness:1,roughness:.22,envMapIntensity:1.35});
  const darkMetal=new THREE.MeshStandardMaterial({color:0x86938e,metalness:1,roughness:.35});
- const panel=new THREE.MeshPhysicalMaterial({map:textures[0],metalness:.02,roughness:.42,clearcoat:.20,clearcoatRoughness:.17,envMapIntensity:.46});
+ const panel=new THREE.MeshPhysicalMaterial({map:textures[0],metalness:.02,roughness:.29,clearcoat:.7,clearcoatRoughness:.12,envMapIntensity:.65});
  const blend={map:{value:textures[1]},amount:{value:0}};
  panel.onBeforeCompile=shader=>{shader.uniforms.flavorMap=blend.map;shader.uniforms.flavorMix=blend.amount;shader.fragmentShader='uniform sampler2D flavorMap;\nuniform float flavorMix;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`#ifdef USE_MAP
   vec4 labelA=texture2D(map,vMapUv);
@@ -34,9 +34,9 @@ function addCan(scene,textures){
  const tab=new THREE.Mesh(tabGeometry,metal);tab.rotation.x=-Math.PI/2;pull.add(tab);
  const rivet=new THREE.Mesh(new THREE.SphereGeometry(.036,16,8),metal);rivet.scale.set(1,.35,1);rivet.position.set(0,1.49,-.09);group.add(rivet);
  // Instanced condensation keeps the entire droplet layer to one draw call.
- const dropMat=new THREE.MeshPhysicalMaterial({color:0xf2fff7,metalness:0,roughness:.055,transparent:true,opacity:.22,clearcoat:1,clearcoatRoughness:.05,envMapIntensity:.9,depthWrite:false});
- const drops=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,8),dropMat,180);let seed=83;const random=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646;};const dummy=new THREE.Object3D();
- for(let i=0;i<180;i++){const theta=random()*Math.PI*2,y=(random()-.5)*2.2,r=.005+Math.pow(random(),3)*.017;dummy.position.set(Math.sin(theta)*.658,y,Math.cos(theta)*.658);dummy.scale.set(r,r*(1+random()*.7),r*.6);dummy.rotation.y=theta;dummy.updateMatrix();drops.setMatrixAt(i,dummy.matrix);}drops.instanceMatrix.needsUpdate=true;group.add(drops);
+ const dropMat=new THREE.MeshPhysicalMaterial({color:0xf2fff7,metalness:0,roughness:.055,transparent:true,opacity:.52,clearcoat:1,clearcoatRoughness:.05,envMapIntensity:1.6,depthWrite:false});
+ const drops=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,8),dropMat,480);let seed=83;const random=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646;};const dummy=new THREE.Object3D();
+ for(let i=0;i<480;i++){const theta=random()*Math.PI*2,y=(random()-.5)*2.2,r=.004+Math.pow(random(),3)*.029;dummy.position.set(Math.sin(theta)*.658,y,Math.cos(theta)*.658);dummy.scale.set(r,r*(1+random()*.7),r*.6);dummy.rotation.y=theta;dummy.updateMatrix();drops.setMatrixAt(i,dummy.matrix);}drops.instanceMatrix.needsUpdate=true;group.add(drops);
  return {group,panel,blend};
 }
 export async function createCanScene(canvas,assets){

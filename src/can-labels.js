@@ -15,27 +15,28 @@ export function drawCanLabel(canvas,image,index){
  const line=(x,y,w,color=p.ink,thickness=2)=>{c.fillStyle=color;c.fillRect(x,y,w,thickness);};
  const rect=(x,y,w,h,color,r=0)=>{c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();};
  const wave=(base,amplitude,phase,color)=>{c.fillStyle=color;c.beginPath();c.moveTo(0,H);for(let x=0;x<=W;x+=6)c.lineTo(x,base+Math.sin(x/W*TAU+phase)*amplitude);c.lineTo(W,H);c.closePath();c.fill();};
- wave(H*.65,H*.1,1.4,p.accent);wave(H*.855,H*.09,2.6,p.deep);
- // Fine bands run across the complete wrap, including the UV seam.
- rect(0,H*.075,W,8,p.ink);rect(0,H*.94,W,8,p.ink);
- for(let n=0;n<8;n++)text('FIZORA  /  SPARKLING',n*W/8+W/16,H*.064,20,700);
- // Front panel: generous brand scale, compact flavor hierarchy, isolated fruit.
- text('FRUIT-FLAVORED SPARKLING DRINK',W/2,H*.145,28,700);
- c.save();c.translate(W/2,H*.31);c.rotate(-.075);
- text('FIZORA',0,0,420,900,p.ink,'center','Barlow Condensed',true,1120);c.restore();
- const badgeW=800;
- rect(W/2-badgeW/2,H*.365,badgeW,114,p.ink,57);
- text(p.flavor,W/2,H*.365+81,68,800,p.base,'center','Barlow Condensed');
- text(p.fruit,W/2,H*.46,31,700);
+ // Continuous sweeping ribbons, matched to the approved campaign can.
+ const ground=c.createLinearGradient(0,0,W,H);ground.addColorStop(0,p.accent);ground.addColorStop(.42,p.base);ground.addColorStop(1,p.accent);c.fillStyle=ground;c.fillRect(0,0,W,H);
+ const ribbon=(base,amp,width,phase,color)=>{c.beginPath();for(let x=0;x<=W;x+=4){const y=base+Math.sin(x/W*TAU+phase)*amp;if(!x)c.moveTo(x,y);else c.lineTo(x,y);}for(let x=W;x>=0;x-=4)c.lineTo(x,base+width+Math.sin(x/W*TAU+phase)*amp);c.closePath();c.fillStyle=color;c.fill();};
+ ribbon(H*.08,H*.18,H*.065,.4,p.deep);
+ ribbon(H*.76,H*.17,H*.19,2.4,p.deep);
+ ribbon(H*.83,H*.16,H*.028,2.4,p.ink);
+ wave(H*.97,H*.035,1.4,p.accent);
+ // Clear front hierarchy leaves space for condensation and metallic shoulders.
+ text('SPARKLING DRINK',W/2,H*.255,35,700);
+ c.save();c.translate(W/2,H*.44);c.rotate(-.045);
+ text('FIZORA',0,0,450,900,p.ink,'center','Barlow Condensed',true,1160);c.restore();
+ text(p.flavor,W/2,H*.505,76,800,p.ink,'center','Barlow Condensed');
+ text(p.fruit,W/2,H*.55,34,700);
  // Use the occupied alpha bounds so fruit does not shrink inside a padded PNG.
  const crop=document.createElement('canvas');crop.width=image.naturalWidth;crop.height=image.naturalHeight;
  const a=crop.getContext('2d',{willReadFrequently:true});a.drawImage(image,0,0);
  const rgba=a.getImageData(0,0,crop.width,crop.height).data;
  let x0=crop.width,y0=crop.height,x1=0,y1=0;
  for(let y=0;y<crop.height;y+=2)for(let x=0;x<crop.width;x+=2)if(rgba[(y*crop.width+x)*4+3]>24){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}
- const sw=Math.max(1,x1-x0+2),sh=Math.max(1,y1-y0+2),scale=Math.min(1000/sw,H*.37/sh),dw=sw*scale,dh=sh*scale;
- c.drawImage(image,x0,y0,sw,sh,W/2-dw/2,H*.5+(H*.37-dh)/2,dw,dh);
- text('FIND YOUR FIZZ.',W/2,H*.905,34,700,p.ink);
+ const sw=Math.max(1,x1-x0+2),sh=Math.max(1,y1-y0+2),scale=Math.min(1000/sw,H*.30/sh),dw=sw*scale,dh=sh*scale;
+ c.drawImage(image,x0,y0,sw,sh,W/2-dw/2,H*.575+(H*.30-dh)/2,dw,dh);
+ text('FIND YOUR FIZZ.',W/2,H*.92,25,700,p.ink);
  text('330 mL',W/2,H*.977,34,700,p.ink);
  // Reverse: a retail-style information hierarchy, never invented nutrition data.
  for(const center of [0,W]){
@@ -115,7 +116,7 @@ function packshot(label,back=false){
  shade.addColorStop(0,'#001c3259');shade.addColorStop(.13,'#001a3217');shade.addColorStop(.28,'#ffffff15');shade.addColorStop(.49,'#ffffff00');shade.addColorStop(.78,'#00152c0b');shade.addColorStop(1,'#00162e66');c.fillStyle=shade;c.fillRect(left,top,right-left,bottom-top);
  const shoulder=c.createLinearGradient(0,top,0,bottom);shoulder.addColorStop(0,'#ffffff2b');shoulder.addColorStop(.06,'#ffffff00');shoulder.addColorStop(.92,'#00000000');shoulder.addColorStop(1,'#00182f2f');c.fillStyle=shoulder;c.fillRect(left,top,right-left,bottom-top);
  let seed=137;const random=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646;};
- for(let i=0;i<95;i++){const x=left+random()*(right-left),y=125+random()*1030,rr=.8+random()*2.3;c.beginPath();c.ellipse(x,y,rr,rr*1.3,0,0,Math.PI*2);c.strokeStyle='#ffffff6b';c.lineWidth=.7;c.stroke();c.fillStyle='#ffffff36';c.fill();}
+ for(let i=0;i<420;i++){const x=left+random()*(right-left),y=125+random()*1030,rr=.6+Math.pow(random(),2)*5;c.beginPath();c.ellipse(x,y,rr,rr*1.3,0,0,Math.PI*2);c.strokeStyle='#002b3655';c.lineWidth=.8;c.stroke();const glint=c.createRadialGradient(x-rr*.3,y-rr*.4,0,x,y,rr*1.4);glint.addColorStop(0,'#ffffffb0');glint.addColorStop(.3,'#ffffff08');glint.addColorStop(.8,'#00272b18');glint.addColorStop(1,'#ffffff90');c.fillStyle=glint;c.fill();}
  c.restore();
  const metal=c.createLinearGradient(60,0,540,0);metal.addColorStop(0,'#60706d');metal.addColorStop(.12,'#eef2f1');metal.addColorStop(.23,'#9aa6a2');metal.addColorStop(.5,'#f7faf9');metal.addColorStop(.76,'#929d9c');metal.addColorStop(.9,'#e4ece8');metal.addColorStop(1,'#53645f');
  c.fillStyle=metal;c.beginPath();c.ellipse(300,bottom,213,18,0,0,Math.PI*2);c.fill();c.strokeStyle='#768782';c.lineWidth=3;c.stroke();
