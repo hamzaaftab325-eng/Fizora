@@ -71,7 +71,7 @@ function createFrostMaterial(texture,opacity=.34){
  return new THREE.MeshPhysicalMaterial({
   color:0xffffff,map:texture,alphaMap:texture,transparent:true,opacity,
   depthWrite:false,side:THREE.DoubleSide,metalness:0,roughness:.86,
-  transmission:.015,thickness:.10,ior:1.309,envMapIntensity:.13,
+  transmission:0,thickness:.10,ior:1.309,envMapIntensity:.13,
   clearcoat:0,clearcoatRoughness:.55,specularIntensity:.16
  });
 }
@@ -91,37 +91,33 @@ export function createIceMaterialSet(glass){
  const fractureMaterials=[.052,.045,.056,.048].map(createFractureMaterial);
 
  const outerMaterials=[
-  glass.material({distortion:.064,roughness:.009,frost:.0007,absorption:.0038,dispersion:0}),
-  glass.material({distortion:.068,roughness:.010,frost:.0009,absorption:.0042,dispersion:0}),
-  glass.material({distortion:.061,roughness:.008,frost:.0006,absorption:.0035,dispersion:0}),
-  glass.material({distortion:.071,roughness:.011,frost:.0010,absorption:.0045,dispersion:0})
+  glass.material({thickness:.82,roughness:.075,frost:.0007,absorption:.0038,dispersion:0}),
+  glass.material({thickness:.82,roughness:.082,frost:.0009,absorption:.0042,dispersion:0}),
+  glass.material({thickness:.82,roughness:.065,frost:.0006,absorption:.0035,dispersion:0}),
+  glass.material({thickness:.82,roughness:.09,frost:.0010,absorption:.0045,dispersion:0})
  ];
  for(const material of outerMaterials){
-  material.bumpMap=bumpTexture;material.bumpScale=.0075;material.needsUpdate=true;
+  material.bumpMap=bumpTexture;material.bumpScale=.0018;material.needsUpdate=true;
  }
 
- const wetFilmMaterial=new THREE.MeshPhysicalMaterial({
-  color:0xffffff,metalness:0,roughness:.003,transparent:true,opacity:.016,depthWrite:false,
-  ior:1.333,clearcoat:1,clearcoatRoughness:.001,envMapIntensity:2.35,specularIntensity:1
- });
  const cloudParticleMaterial=new THREE.MeshPhysicalMaterial({
   color:0xfcffff,metalness:0,roughness:.93,transparent:true,opacity:.085,depthWrite:false,
-  transmission:.01,thickness:.08,ior:1.309,envMapIntensity:.08,specularIntensity:.10
+  transmission:0,thickness:.08,ior:1.309,envMapIntensity:.08,specularIntensity:.10
  });
  const airMaterial=new THREE.MeshPhysicalMaterial({
   color:0xffffff,roughness:.02,transparent:true,opacity:.28,depthWrite:false,ior:1,
   specularIntensity:1,envMapIntensity:.70
  });
  const microBubbleMaterial=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.18,depthWrite:false});
- const meltDropMaterial=glass.material({distortion:.0058,roughness:.0025,frost:0,absorption:.0008,dispersion:0});
+ const meltDropMaterial=glass.material({thickness:1.05,ior:1.333,roughness:.025,frost:0,absorption:.0008,dispersion:0});
 
  return {
   bumpTexture,frostTextures,frostMaterials,fractureMaterials,outerMaterials,
-  wetFilmMaterial,cloudParticleMaterial,airMaterial,microBubbleMaterial,meltDropMaterial,
+  cloudParticleMaterial,airMaterial,microBubbleMaterial,meltDropMaterial,
   dispose(){
    bumpTexture.dispose();frostTextures.forEach(t=>t.dispose());frostMaterials.forEach(m=>m.dispose());
    fractureMaterials.forEach(m=>m.dispose());outerMaterials.forEach(m=>m.dispose());
-   wetFilmMaterial.dispose();cloudParticleMaterial.dispose();airMaterial.dispose();microBubbleMaterial.dispose();meltDropMaterial.dispose();
+   cloudParticleMaterial.dispose();airMaterial.dispose();microBubbleMaterial.dispose();meltDropMaterial.dispose();
   }
  };
 }
@@ -130,7 +126,7 @@ export function createRefractionScene(renderer,scene,camera,backgroundTextures){
  const target=new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType,depthBuffer:true});
  target.texture.minFilter=THREE.LinearFilter;target.texture.magFilter=THREE.LinearFilter;
  const resolution={value:new THREE.Vector2(1,1)},source={value:target.texture};
- const hidden=[];
+ const hidden=[],interiors=[];
  const uniforms={imageA:{value:backgroundTextures[0]},imageB:{value:backgroundTextures[1]},blend:{value:0},aspect:{value:1}};
  const backdrop=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({
   uniforms,depthWrite:false,depthTest:false,
@@ -141,53 +137,65 @@ export function createRefractionScene(renderer,scene,camera,backgroundTextures){
 
  return {
   exclude(object){hidden.push(object);},
-  material({distortion=.012,roughness=.04,frost=0,absorption=.006,dispersion=0}={}){
+  interior(object){interiors.push(object);object.visible=false;},
+  material({thickness=.9,ior=1.309,roughness=.06,frost=0,absorption=.006,dispersion=0}={}){
    const material=new THREE.MeshPhysicalMaterial({
-    depthWrite:false,color:0xffffff,metalness:0,roughness,ior:1.309,
-    clearcoat:1,clearcoatRoughness:.004,envMapIntensity:1.90,specularIntensity:1
+    depthWrite:true,color:0xffffff,metalness:0,roughness,ior,
+    clearcoat:0,envMapIntensity:1,specularIntensity:1
    });
+   material.userData.isGlass=true;
    material.onBeforeCompile=shader=>{
     Object.assign(shader.uniforms,{
-     glassScene:source,glassResolution:resolution,glassDistortion:{value:distortion},glassFrost:{value:frost},
-     glassAbsorption:{value:absorption},glassDispersion:{value:dispersion}
+     glassScene:source,glassResolution:resolution,glassProjection:{value:camera.projectionMatrix},
+     glassThickness:{value:thickness},glassIor:{value:ior},glassFrost:{value:frost},
+     glassAbsorption:{value:absorption},glassDispersion:{value:Math.min(dispersion,.006)}
     });
-    shader.fragmentShader='uniform sampler2D glassScene;uniform vec2 glassResolution;uniform float glassDistortion;uniform float glassFrost;uniform float glassAbsorption;uniform float glassDispersion;\n'+shader.fragmentShader;
+    shader.vertexShader='varying float vGlassScale;\n'+shader.vertexShader;
+    shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`#include <project_vertex>
+     vGlassScale=length(modelViewMatrix[2].xyz);
+     #ifdef USE_INSTANCING
+      vGlassScale*=length(instanceMatrix[2].xyz);
+     #endif
+    `);
+    shader.fragmentShader=`varying float vGlassScale;
+     uniform sampler2D glassScene;uniform vec2 glassResolution;uniform mat4 glassProjection;
+     uniform float glassThickness;uniform float glassIor;uniform float glassFrost;
+     uniform float glassAbsorption;uniform float glassDispersion;
+    `+shader.fragmentShader;
     shader.fragmentShader=shader.fragmentShader.replace('vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;',`
-     vec2 screenUv=gl_FragCoord.xy/glassResolution;
-     float viewDistance=max(length(vViewPosition),.001);
-     vec2 offset=normal.xy*glassDistortion/max(viewDistance*.15,.42);
-     offset.x*=glassResolution.y/glassResolution.x;
-     vec2 uv=clamp(screenUv-offset,vec2(.002),vec2(.998));
-     vec3 transmitted=texture2D(glassScene,uv).rgb;
-     float facing=clamp(dot(normal,normalize(vViewPosition)),0.,1.);
-     float edge=pow(1.-facing,1.27);
-
-     vec2 texel=.70/glassResolution;
+     vec3 eye=normalize(vViewPosition);
+     vec3 ray=refract(-eye,normal,1./glassIor);
+     float facing=clamp(dot(normal,eye),0.,1.);
+     float path=glassThickness*vGlassScale/max(abs(dot(ray,normal)),.35);
+     vec4 projected=glassProjection*vec4(-vViewPosition+ray*path,1.);
+     vec2 uv=clamp(projected.xy/projected.w*.5+.5,vec2(.002),vec2(.998));
+     vec2 split=(uv-gl_FragCoord.xy/glassResolution)*glassDispersion;
+     vec3 transmitted=vec3(texture2D(glassScene,uv+split).r,texture2D(glassScene,uv).g,texture2D(glassScene,uv-split).b);
+     vec2 texel=1.5/glassResolution;
      vec3 blur=(texture2D(glassScene,uv+vec2(texel.x,0.)).rgb+texture2D(glassScene,uv-vec2(texel.x,0.)).rgb+texture2D(glassScene,uv+vec2(0.,texel.y)).rgb+texture2D(glassScene,uv-vec2(0.,texel.y)).rgb)*.25;
-     transmitted=mix(transmitted,blur,clamp(glassFrost*2.0,0.,.018));
-
-     vec3 sigma=vec3(.24,.085,.032);
-     transmitted*=exp(-sigma*glassAbsorption*(.15+edge*.52)*1.8);
-     float fresnel=.020+.980*pow(1.-facing,5.0);
-     vec3 rim=vec3(1.0,.999,.996)*pow(1.-facing,2.45)*.18;
-     vec3 outgoingLight=(transmitted+rim)*(1.-fresnel*.20)+totalSpecular*(1.36+fresnel*1.84);
+     transmitted=mix(transmitted,blur,clamp(glassFrost+roughnessFactor*.25,0.,.28));
+     transmitted*=exp(-vec3(.24,.085,.032)*glassAbsorption*path);
+     float f0=pow((glassIor-1.)/(glassIor+1.),2.);
+     float fresnel=f0+(1.-f0)*pow(1.-facing,5.);
+     // One Fresnel reflection, no painted white edge or extra reflective shell.
+     vec3 outgoingLight=transmitted*(1.-fresnel)+totalSpecular;
     `);
    };
-   material.customProgramCacheKey=()=>`fizora-clean-real-ice-v12-${distortion}-${frost}-${absorption}`;
+   material.customProgramCacheKey=()=>`fizora-volume-v13-${thickness}-${ior}-${frost}-${absorption}-${dispersion}`;
    return material;
   },
   resize(){
    const size=renderer.getDrawingBufferSize(new THREE.Vector2());resolution.value.copy(size);
-   const scale=innerWidth<760?.60:.80;
-   target.setSize(Math.max(1,Math.min(2048,Math.round(size.x*scale))),Math.max(1,Math.min(1152,Math.round(size.y*scale))));
+   const scale=Math.min(innerWidth<760?.65:.85,2048/size.x,1536/size.y);
+   target.setSize(Math.max(1,Math.round(size.x*scale)),Math.max(1,Math.round(size.y*scale)));
    uniforms.aspect.value=size.x/size.y;
   },
   setFlavor(i,t){uniforms.imageA.value=backgroundTextures[i];uniforms.imageB.value=backgroundTextures[i+1];uniforms.blend.value=t;},
   capture(){
-   const visibility=hidden.map(o=>o.visible);hidden.forEach(o=>o.visible=false);backdrop.visible=true;
+   const visibility=hidden.map(o=>o.visible);hidden.forEach(o=>o.visible=false);interiors.forEach(o=>o.visible=true);backdrop.visible=true;
    const previousTarget=renderer.getRenderTarget(),tone=renderer.toneMapping;
    try{renderer.toneMapping=THREE.NoToneMapping;renderer.setRenderTarget(target);renderer.render(scene,camera);}
-   finally{renderer.setRenderTarget(previousTarget);renderer.toneMapping=tone;backdrop.visible=false;hidden.forEach((o,i)=>o.visible=visibility[i]);}
+   finally{renderer.setRenderTarget(previousTarget);renderer.toneMapping=tone;backdrop.visible=false;interiors.forEach(o=>o.visible=false);hidden.forEach((o,i)=>o.visible=visibility[i]);}
   },
   dispose(){target.dispose();backgroundTextures.forEach(t=>t.dispose());}
  };

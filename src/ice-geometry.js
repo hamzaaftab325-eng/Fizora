@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {smoothSurfaceNormals} from './surface-geometry.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 export function makeIceRng(seed=1){
@@ -7,7 +8,7 @@ export function makeIceRng(seed=1){
 }
 
 export function createIceGeometry(seed=1,melt=.205){
- const geometry=new RoundedBoxGeometry(1,1,1,18,melt);
+ const geometry=new RoundedBoxGeometry(1,1,1,9,melt);
  const position=geometry.attributes.position;
  const phase=seed*1.917;
 
@@ -49,7 +50,7 @@ export function createIceGeometry(seed=1,melt=.205){
  }
 
  position.needsUpdate=true;
- geometry.computeVertexNormals();
+ smoothSurfaceNormals(geometry);
  geometry.computeBoundingSphere();
  return geometry;
 }

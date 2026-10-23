@@ -68,18 +68,18 @@ function addCan(scene,textures,glass){
  const surfaces=createSurfaceTextures();
  const metal=new THREE.MeshPhysicalMaterial({
   color:0xd9dddd,metalness:1,roughness:.185,clearcoat:.08,clearcoatRoughness:.12,
-  envMapIntensity:2.25,anisotropy:.35
+  envMapIntensity:1.25,anisotropy:.35
  });
  const brushedMetal=new THREE.MeshPhysicalMaterial({
   color:0xb9c0be,metalness:1,roughness:.255,clearcoat:.04,clearcoatRoughness:.18,
-  envMapIntensity:1.92,anisotropy:.82,anisotropyRotation:Math.PI/2
+  envMapIntensity:1.1,anisotropy:.82,anisotropyRotation:Math.PI/2
  });
  const darkMetal=new THREE.MeshStandardMaterial({color:0x252d2b,metalness:.90,roughness:.36,envMapIntensity:1.12});
 
  const panel=new THREE.MeshPhysicalMaterial({
   map:textures[0],metalness:.055,roughness:.305,roughnessMap:surfaces.roughTexture,
-  clearcoat:.96,clearcoatRoughness:.105,envMapIntensity:1.20,ior:1.49,specularIntensity:.93,
-  bumpMap:surfaces.bumpTexture,bumpScale:.0045,anisotropy:.10
+  clearcoat:.42,clearcoatRoughness:.18,envMapIntensity:.85,ior:1.49,specularIntensity:.93,
+  bumpMap:surfaces.bumpTexture,bumpScale:.0007,anisotropy:.10
  });
  const blend={map:{value:textures[1]},amount:{value:0}};
  panel.onBeforeCompile=shader=>{
@@ -96,8 +96,7 @@ function addCan(scene,textures,glass){
     vec3 labelRgb=mix(labelA.rgb,labelB.rgb,flavorMix);
     float hi=max(max(labelRgb.r,labelRgb.g),labelRgb.b),lo=min(min(labelRgb.r,labelRgb.g),labelRgb.b);
     float saturation=hi-lo;
-    float microGrain=fract(sin(dot(vMapUv*vec2(783.31,421.17),vec2(12.9898,78.233)))*43758.5453);
-    roughnessFactor=clamp(roughnessFactor+(microGrain-.5)*.032+saturation*.018,.17,.43);
+    roughnessFactor=clamp(roughnessFactor+saturation*.012,.22,.43);
    #endif`);
   shader.fragmentShader=shader.fragmentShader.replace('#include <metalnessmap_fragment>',`#include <metalnessmap_fragment>
    #ifdef USE_MAP
@@ -109,7 +108,7 @@ function addCan(scene,textures,glass){
     metalnessFactor=mix(metalnessFactor,.42,exposedAluminum*.42);
    #endif`);
  };
- panel.customProgramCacheKey=()=> 'fizora-label-photoreal-v6';
+ panel.customProgramCacheKey=()=> 'fizora-label-v7';
 
  const bodyGeometry=createCanBodyGeometry();
  const body=new THREE.Mesh(bodyGeometry,panel);body.castShadow=body.receiveShadow=true;group.add(body);
@@ -143,8 +142,8 @@ function addCan(scene,textures,glass){
  const rivet=new THREE.Mesh(new THREE.SphereGeometry(.037,28,14),metal);rivet.scale.set(1,.30,1);rivet.position.set(0,1.492,-.09);rivet.castShadow=true;group.add(rivet);
  const rivetRing=ring(.052,.0018,1.486,brushedMetal);rivetRing.position.z=-.09;
 
- const tinyDropMat=glass.material({distortion:.0038,roughness:.018,frost:.001,absorption:.006,dispersion:.002});
- const bigDropMat=glass.material({distortion:.0068,roughness:.014,frost:.001,absorption:.010,dispersion:.003});
+ const tinyDropMat=glass.material({thickness:1.0,ior:1.333,roughness:.025,frost:.001,absorption:.006,dispersion:.002});
+ const bigDropMat=glass.material({thickness:1.2,ior:1.333,roughness:.022,frost:.001,absorption:.010,dispersion:.003});
  const random=makeRng(83),dummy=new THREE.Object3D();
  const tinyCount=760;
  const tiny=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,7),tinyDropMat,tinyCount);
@@ -152,7 +151,7 @@ function addCan(scene,textures,glass){
   const cluster=Math.floor(random()*13),clusterTheta=cluster/13*Math.PI*2+(random()-.5)*.34;
   const theta=(clusterTheta+(random()-.5)*.48)%(Math.PI*2),y=(random()-.5)*2.20;
   const r=.0032+Math.pow(random(),4.4)*.0145;
-  dummy.position.set(Math.sin(theta)*.6615,y,Math.cos(theta)*.6615);
+  dummy.position.set(Math.sin(theta)*(.655+r*.12),y,Math.cos(theta)*(.655+r*.12));
   dummy.scale.set(r,r*(.88+random()*.40),r*.50);dummy.rotation.y=theta;dummy.updateMatrix();tiny.setMatrixAt(i,dummy.matrix);
  }
  tiny.instanceMatrix.needsUpdate=true;tiny.renderOrder=3;group.add(tiny);glass.exclude(tiny);
@@ -162,7 +161,7 @@ function addCan(scene,textures,glass){
  for(let i=0;i<mediumCount;i++){
   const theta=random()*Math.PI*2,y=(random()-.5)*2.05;
   const r=.009+Math.pow(random(),2.55)*.030,gravity=1.08+Math.pow(random(),1.7)*1.55;
-  dummy.position.set(Math.sin(theta)*.6635,y,Math.cos(theta)*.6635);
+  dummy.position.set(Math.sin(theta)*(.655+r*.12),y,Math.cos(theta)*(.655+r*.12));
   dummy.scale.set(r,r*gravity,r*.46);dummy.rotation.y=theta;dummy.rotation.z=(random()-.5)*.09;dummy.updateMatrix();medium.setMatrixAt(i,dummy.matrix);
  }
  medium.instanceMatrix.needsUpdate=true;medium.renderOrder=4;group.add(medium);glass.exclude(medium);
@@ -176,7 +175,7 @@ function addCan(scene,textures,glass){
   for(let i=0;i<runSeeds.length;i++){
    const s=runSeeds[i],progress=(s.phase+time*s.speed)%1,y=s.start-progress*s.distance;
    const pulse=.86+.14*Math.sin(progress*Math.PI);
-   dummy.position.set(Math.sin(s.theta)*.6645,y,Math.cos(s.theta)*.6645);
+   dummy.position.set(Math.sin(s.theta)*(.655+s.r*.12),y,Math.cos(s.theta)*(.655+s.r*.12));
    dummy.scale.set(s.r*pulse,s.r*s.stretch*(.92+progress*.20),s.r*.43);dummy.rotation.y=s.theta;dummy.updateMatrix();runs.setMatrixAt(i,dummy.matrix);
   }
   runs.instanceMatrix.needsUpdate=true;
@@ -194,7 +193,7 @@ export async function createCanScene(canvas,assets){
  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance',premultipliedAlpha:true});
  renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.5:2));
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.99;
- renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(28.5,innerWidth/innerHeight,.1,50);camera.position.set(0,0,8);
  const environment=createStudioEnvironment(renderer);scene.environment=environment.texture;
 
@@ -216,7 +215,7 @@ export async function createCanScene(canvas,assets){
  }));
  const glass=createRefractionScene(renderer,scene,camera,backgrounds);
  const {group,panel,blend,surfaces,condensation}=addCan(scene,textures,glass);
- group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+ group.traverse(o=>{if(o.isMesh){o.castShadow=!o.material.userData.isGlass&&!o.material.transparent;o.receiveShadow=!o.material.userData.isGlass;}});
 
  const shadow=new THREE.Mesh(new THREE.PlaneGeometry(3.15,.76),new THREE.ShaderMaterial({
   transparent:true,depthWrite:false,
@@ -238,7 +237,7 @@ export async function createCanScene(canvas,assets){
   renderer.setPixelRatio(1);renderer.setSize(480,720,false);camera.aspect=2/3;camera.updateProjectionMatrix();
   group.rotation.set(.12,Math.PI,0,'YXZ');group.scale.setScalar(1.28);shadow.visible=false;bubbles.visible=false;
   for(let i=0;i<3;i++){
-   panel.map=textures[i];blend.map.value=textures[i];blend.amount.value=0;glass.resize();glass.setFlavor(Math.min(i,1),i===2?1:0);glass.capture();renderer.render(scene,camera);catalogShots.push(canvas.toDataURL('image/png'));
+   panel.map=textures[i];blend.map.value=textures[i];blend.amount.value=0;glass.resize();glass.setFlavor(Math.min(i,1),i===2?1:0);renderer.shadowMap.needsUpdate=true;glass.capture();renderer.render(scene,camera);catalogShots.push(canvas.toDataURL('image/png'));
   }
  }catch{catalogShots.length=0;}
 
@@ -297,10 +296,11 @@ export async function createCanScene(canvas,assets){
    condensation.update(sceneTime);
    bubbleSystem.update(sceneTime,pose,Math.max(s.arc,scrollEnergy*.36),rimTint);
    ice.update(sceneTime,pose,Math.max(s.arc,scrollEnergy*.34));
-   glass.setFlavor(s.i,s.t);glass.capture();renderer.render(scene,camera);
+   glass.setFlavor(s.i,s.t);renderer.shadowMap.needsUpdate=true;glass.capture();renderer.render(scene,camera);
   },
   dispose(){
    if(dead)return;dead=true;canvas.removeEventListener('webglcontextlost',lost);
+   ice.dispose();scene.remove(ice.root);
    const geometries=new Set(),materials=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>materials.add(m));});
    geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());surfaces.dispose();environment.dispose();glass.dispose();renderer.dispose();
   }
