@@ -1,2 +1,7 @@
-import {defineConfig} from 'vite';
-export default defineConfig({server:{allowedHosts:['terminal.local']}});
+import { defineConfig } from 'vite';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  plugins: [tailwindcss()],
+  server: { allowedHosts: ['terminal.local'] },
+});

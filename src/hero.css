@@ -1,0 +1,14 @@
+/* Fizora hero Tailwind entry: deliberately excludes Preflight so the legacy site keeps its existing global CSS reset. */
+@layer theme, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+#fizora-hero-root {
+  position: relative;
+  z-index: 80;
+}
+
+#fizora-hero-root img {
+  -webkit-user-drag: none;
+  user-select: none;
+}

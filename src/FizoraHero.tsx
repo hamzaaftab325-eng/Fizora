@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 type Direction = 'next' | 'prev';
-type IconComponent = React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
 
 type Slide = {
   id: string;
@@ -18,8 +18,8 @@ const SLIDES: Slide[] = [
   {
     id: 'citrus',
     src: '/images/citrus-can.webp',
-    bg: '#9CBF35',
-    panel: '#C6E45C',
+    bg: '#79B400',
+    panel: '#A8D830',
     title: 'CITRUS SPARK',
     fruit: 'LEMON + LIME',
     description: 'Zesty lemon meets lively lime in a sparkling sip with a sunny disposition.',
@@ -27,8 +27,8 @@ const SLIDES: Slide[] = [
   {
     id: 'berry',
     src: '/images/berry-can.webp',
-    bg: '#C95891',
-    panel: '#E77EB0',
+    bg: '#BD3F7E',
+    panel: '#E074A8',
     title: 'BERRY BURST',
     fruit: 'RASPBERRY + BLACKBERRY',
     description: 'Juicy berries, bright fizz and a playful finish built for colorful moments.',
@@ -36,16 +36,16 @@ const SLIDES: Slide[] = [
   {
     id: 'tropical',
     src: '/images/tropical-can.webp',
-    bg: '#E68952',
-    panel: '#F5AA72',
+    bg: '#E47C3D',
+    panel: '#F6A76E',
     title: 'TROPICAL RUSH',
     fruit: 'MANGO + PASSION FRUIT',
     description: 'A sunny sparkling escape with mango, passion fruit and a smooth tropical finish.',
   },
   {
     id: 'lineup',
-    bg: '#2E5A42',
-    panel: '#47785C',
+    bg: '#184831',
+    panel: '#347257',
     title: 'THE FIZORA LINEUP',
     fruit: 'THREE FLAVORS · ONE HAPPY PLACE',
     description: 'Three bright personalities. One unmistakable fizz. Pick the can that feels like you.',
@@ -54,18 +54,13 @@ const SLIDES: Slide[] = [
 ];
 
 const CAN_SRCS = ['/images/citrus-can.webp', '/images/berry-can.webp', '/images/tropical-can.webp'];
-const LUCIDE_URL = 'https://esm.sh/lucide-react@1.63.0?bundle&deps=react@19.1.1';
 const EASE = '650ms cubic-bezier(0.4,0,0.2,1)';
 
 const grainSvg = `data:image/svg+xml,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter>
-  <rect width="100%" height="100%" filter="url(#n)" opacity="0.08"/>
+  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter>
+  <rect width="100%" height="100%" filter="url(#noise)" opacity="0.08"/>
 </svg>`)}`;
-
-function FallbackArrow({ direction }: { direction: 'left' | 'right' }) {
-  return <span aria-hidden="true" className="text-[26px] leading-none">{direction === 'left' ? '←' : '→'}</span>;
-}
 
 function LineupArt() {
   return (
@@ -91,7 +86,6 @@ export default function FizoraHero() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
-  const [icons, setIcons] = useState<{ ArrowLeft?: IconComponent; ArrowRight?: IconComponent }>({});
 
   useEffect(() => {
     CAN_SRCS.forEach((src) => {
@@ -104,17 +98,6 @@ export default function FizoraHero() {
     const onResize = () => setIsMobile(window.innerWidth < 640);
     window.addEventListener('resize', onResize, { passive: true });
     return () => window.removeEventListener('resize', onResize);
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-    import(/* @vite-ignore */ LUCIDE_URL)
-      .then((module) => {
-        if (!mounted) return;
-        setIcons({ ArrowLeft: module.ArrowLeft as IconComponent, ArrowRight: module.ArrowRight as IconComponent });
-      })
-      .catch(() => {});
-    return () => { mounted = false; };
   }, []);
 
   const roles = useMemo(() => ({
@@ -132,8 +115,6 @@ export default function FizoraHero() {
   };
 
   const active = SLIDES[activeIndex];
-  const ArrowLeftIcon = icons.ArrowLeft;
-  const ArrowRightIcon = icons.ArrowRight;
 
   return (
     <section
@@ -157,7 +138,10 @@ export default function FizoraHero() {
           aria-hidden="true"
           style={{ backgroundColor: active.panel, transition: `background-color ${EASE}`, opacity: 0.58 }}
         />
-        <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.20),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.06),rgba(0,0,0,0.08))]" aria-hidden="true" />
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.22),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.07),rgba(0,0,0,0.10))]"
+          aria-hidden="true"
+        />
 
         <div
           className="pointer-events-none absolute inset-x-0 top-[18%] z-[2] flex select-none items-center justify-center whitespace-nowrap uppercase text-white"
@@ -184,32 +168,16 @@ export default function FizoraHero() {
         <div className="absolute inset-0 z-[3]" aria-live="polite">
           {SLIDES.map((slide, index) => {
             const role = index === roles.center ? 'center' : index === roles.left ? 'left' : index === roles.right ? 'right' : 'back';
-            const styles: React.CSSProperties = {
+            const styles: CSSProperties = {
               position: 'absolute',
               aspectRatio: '0.6 / 1',
-              transform:
-                role === 'center'
-                  ? `translateX(-50%) scale(${isMobile ? 1.25 : 1.68})`
-                  : 'translateX(-50%) scale(1)',
+              transform: role === 'center' ? `translateX(-50%) scale(${isMobile ? 1.25 : 1.68})` : 'translateX(-50%) scale(1)',
               filter: role === 'center' ? 'none' : role === 'back' ? 'blur(4px)' : 'blur(2px)',
               opacity: role === 'center' ? 1 : role === 'back' ? 0.72 : 0.85,
               zIndex: role === 'center' ? 20 : role === 'back' ? 5 : 10,
-              left:
-                role === 'center' || role === 'back'
-                  ? '50%'
-                  : role === 'left'
-                    ? (isMobile ? '20%' : '30%')
-                    : (isMobile ? '80%' : '70%'),
-              height:
-                role === 'center'
-                  ? (isMobile ? '60%' : '92%')
-                  : role === 'back'
-                    ? (isMobile ? '13%' : '22%')
-                    : (isMobile ? '16%' : '28%'),
-              bottom:
-                role === 'center'
-                  ? (isMobile ? '22%' : '0')
-                  : (isMobile ? '32%' : '12%'),
+              left: role === 'center' || role === 'back' ? '50%' : role === 'left' ? (isMobile ? '20%' : '30%') : (isMobile ? '80%' : '70%'),
+              height: role === 'center' ? (isMobile ? '60%' : '92%') : role === 'back' ? (isMobile ? '13%' : '22%') : (isMobile ? '16%' : '28%'),
+              bottom: role === 'center' ? (isMobile ? '22%' : '0') : (isMobile ? '32%' : '12%'),
               transition: `transform ${EASE}, filter ${EASE}, opacity ${EASE}, left ${EASE}, height ${EASE}, bottom ${EASE}`,
               willChange: 'transform, filter, opacity, left',
             };
@@ -223,7 +191,7 @@ export default function FizoraHero() {
                     src={slide.src}
                     alt={role === 'center' ? `Fizora ${slide.title} can` : ''}
                     draggable={false}
-                    className="h-full w-full object-contain object-bottom drop-shadow-[0_30px_34px_rgba(0,0,0,0.20)]"
+                    className="h-full w-full object-contain object-bottom drop-shadow-[0_30px_34px_rgba(0,0,0,0.22)]"
                   />
                 )}
               </div>
@@ -236,9 +204,7 @@ export default function FizoraHero() {
             {active.title}
           </p>
           <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-white/75 sm:text-[10px]">{active.fruit}</p>
-          <p className="mb-4 hidden text-xs leading-[1.6] text-white/85 sm:mb-5 sm:block sm:text-sm">
-            {active.description}
-          </p>
+          <p className="mb-4 hidden text-xs leading-[1.6] text-white/85 sm:mb-5 sm:block sm:text-sm">{active.description}</p>
           <div className="flex gap-3">
             <button
               type="button"
@@ -247,7 +213,7 @@ export default function FizoraHero() {
               className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-transparent text-white transition-[transform,background-color] duration-150 hover:scale-[1.08] hover:bg-white/10 disabled:cursor-wait sm:h-16 sm:w-16"
               disabled={isAnimating}
             >
-              {ArrowLeftIcon ? <ArrowLeftIcon size={26} strokeWidth={2.25} /> : <FallbackArrow direction="left" />}
+              <ArrowLeft size={26} strokeWidth={2.25} />
             </button>
             <button
               type="button"
@@ -256,7 +222,7 @@ export default function FizoraHero() {
               className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-transparent text-white transition-[transform,background-color] duration-150 hover:scale-[1.08] hover:bg-white/10 disabled:cursor-wait sm:h-16 sm:w-16"
               disabled={isAnimating}
             >
-              {ArrowRightIcon ? <ArrowRightIcon size={26} strokeWidth={2.25} /> : <FallbackArrow direction="right" />}
+              <ArrowRight size={26} strokeWidth={2.25} />
             </button>
           </div>
         </div>
@@ -273,7 +239,7 @@ export default function FizoraHero() {
           }}
         >
           DISCOVER IT
-          {ArrowRightIcon ? <ArrowRightIcon className="h-5 w-5 sm:h-8 sm:w-8" strokeWidth={2.25} /> : <FallbackArrow direction="right" />}
+          <ArrowRight className="h-5 w-5 sm:h-8 sm:w-8" strokeWidth={2.25} />
         </a>
 
         <div className="pointer-events-none absolute bottom-0 left-1/2 z-[4] h-24 w-[70%] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.16),transparent_68%)] blur-xl" aria-hidden="true" />
