@@ -2,13 +2,13 @@ import React,{useEffect,useMemo,useState,type CSSProperties}from'react';
 import{ArrowLeft,ArrowRight}from'lucide-react';
 
 type Direction='next'|'prev';
-type Slide={id:string;src?:string;background:string;bg:string;title:string;fruit:string;description:string;lineup?:boolean};
+type Slide={id:string;src?:string;background:string;bg:string;title:string;fruit:string;description:string;position:string;lineup?:boolean};
 
 const SLIDES:Slide[]=[
- {id:'citrus',src:'/images/citrus-can.webp',background:'/images/hero-citrus-bg.webp',bg:'#79B400',title:'CITRUS SPARK',fruit:'LEMON + LIME',description:'Zesty lemon meets lively lime in a sparkling sip with a sunny disposition.'},
- {id:'berry',src:'/images/berry-can.webp',background:'/images/hero-berry-bg.webp',bg:'#BD3F7E',title:'BERRY BURST',fruit:'RASPBERRY + BLACKBERRY',description:'Juicy berries, bright fizz and a playful finish built for colorful moments.'},
- {id:'tropical',src:'/images/tropical-can.webp',background:'/images/hero-tropical-bg.webp',bg:'#E47C3D',title:'TROPICAL RUSH',fruit:'MANGO + PASSION FRUIT',description:'A sunny sparkling escape with mango, passion fruit and a smooth tropical finish.'},
- {id:'lineup',background:'/images/hero-lineup-bg.webp',bg:'#184831',title:'THE FIZORA LINEUP',fruit:'THREE FLAVORS · ONE HAPPY PLACE',description:'Three bright personalities. One unmistakable fizz. Pick the can that feels like you.',lineup:true},
+ {id:'citrus',src:'/images/citrus-can.webp',background:'/images/hero-citrus-bg.webp',bg:'#79B400',title:'CITRUS SPARK',fruit:'LEMON + LIME',description:'Zesty lemon meets lively lime in a sparkling sip with a sunny disposition.',position:'center 54%'},
+ {id:'berry',src:'/images/berry-can.webp',background:'/images/hero-berry-bg.webp',bg:'#BD3F7E',title:'BERRY BURST',fruit:'RASPBERRY + BLACKBERRY',description:'Juicy berries, bright fizz and a playful finish built for colorful moments.',position:'center 50%'},
+ {id:'tropical',src:'/images/tropical-can.webp',background:'/images/hero-tropical-bg.webp',bg:'#E47C3D',title:'TROPICAL RUSH',fruit:'MANGO + PASSION FRUIT',description:'A sunny sparkling escape with mango, passion fruit and a smooth tropical finish.',position:'center 52%'},
+ {id:'lineup',background:'/images/hero-lineup-bg.webp',bg:'#184831',title:'THE FIZORA LINEUP',fruit:'THREE FLAVORS · ONE HAPPY PLACE',description:'Three bright personalities. One unmistakable fizz. Pick the can that feels like you.',position:'center 50%',lineup:true},
 ];
 const CAN_SRCS=['/images/citrus-can.webp','/images/berry-can.webp','/images/tropical-can.webp'];
 const BACKGROUND_SRCS=SLIDES.map(slide=>slide.background);
@@ -27,9 +27,9 @@ export default function FizoraHero(){
  return <section className="relative z-[80] w-full overflow-hidden text-white" aria-label="Fizora flavor carousel" style={{backgroundColor:active.bg,transition:`background-color ${EASE}`,fontFamily:'Inter,sans-serif'}}>
   <div className="relative h-[100svh] min-h-[620px] w-full overflow-hidden">
    <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-    {SLIDES.map((slide,index)=><img key={slide.background} src={slide.background} alt="" decoding="async" fetchPriority={index===0?'high':'auto'} className="absolute inset-0 h-full w-full object-cover" style={{opacity:index===activeIndex?1:0,transform:index===activeIndex?'scale(1.015)':'scale(1.04)',transition:`opacity ${EASE}, transform 1400ms cubic-bezier(.2,.8,.2,1)`,willChange:isAnimating?'opacity, transform':'auto'}}/>)}
-    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.28)_0%,rgba(0,0,0,.05)_36%,rgba(0,0,0,.04)_66%,rgba(0,0,0,.22)_100%),linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.16))]"/>
-    <div className="absolute inset-x-0 bottom-0 h-[42%] bg-[linear-gradient(180deg,transparent,rgba(0,0,0,.20))]"/>
+    {SLIDES.map((slide,index)=><img key={slide.background} src={slide.background} alt="" decoding="async" fetchPriority={index===0?'high':'auto'} className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:slide.position,opacity:index===activeIndex?1:0,transform:index===activeIndex?'scale(1.012)':'scale(1.035)',transition:`opacity ${EASE},transform 1100ms cubic-bezier(.2,.8,.2,1)`,willChange:isAnimating?'opacity,transform':'auto'}}/>)}
+    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.34)_0%,rgba(0,0,0,.08)_31%,rgba(0,0,0,.05)_69%,rgba(0,0,0,.28)_100%),linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.18))]"/>
+    <div className="absolute inset-x-0 bottom-0 h-[46%] bg-[linear-gradient(180deg,transparent,rgba(0,0,0,.24))]"/>
    </div>
 
    <a href="#citrus" className="absolute left-4 top-6 z-[60] text-xs font-semibold uppercase text-white/95 sm:left-8" style={{letterSpacing:'.18em'}}>FIZORA</a>
@@ -37,7 +37,7 @@ export default function FizoraHero(){
 
    <div className="absolute inset-0 z-[3]" aria-live="polite">{SLIDES.map((slide,index)=>{
     const role=index===roles.center?'center':index===roles.left?'left':index===roles.right?'right':'back';
-    const styles:CSSProperties={position:'absolute',aspectRatio:'.6 / 1',transform:role==='center'?`translateX(-50%) scale(${isMobile?1.04:1.06})`:'translateX(-50%) scale(1)',opacity:role==='center'?1:role==='back'?.28:.74,zIndex:role==='center'?20:role==='back'?5:10,left:role==='center'||role==='back'?'50%':role==='left'?(isMobile?'18%':'27%'):(isMobile?'82%':'73%'),height:role==='center'?(isMobile?'54%':'75%'):role==='back'?(isMobile?'14%':'21%'):(isMobile?'20%':'31%'),bottom:role==='center'?(isMobile?'19%':'6%'):(isMobile?'30%':'13%'),transition:`transform ${EASE}, opacity ${EASE}, left ${EASE}, height ${EASE}, bottom ${EASE}`,willChange:isAnimating?'transform, opacity, left':'auto'};
+    const styles:CSSProperties={position:'absolute',aspectRatio:'.6 / 1',transform:role==='center'?`translateX(-50%) scale(${isMobile?1.04:1.06})`:'translateX(-50%) scale(1)',opacity:role==='center'?1:role==='back'?.24:.72,zIndex:role==='center'?20:role==='back'?5:10,left:role==='center'||role==='back'?'50%':role==='left'?(isMobile?'18%':'27%'):(isMobile?'82%':'73%'),height:role==='center'?(isMobile?'54%':'75%'):role==='back'?(isMobile?'14%':'21%'):(isMobile?'20%':'31%'),bottom:role==='center'?(isMobile?'19%':'6%'):(isMobile?'30%':'13%'),transition:`transform ${EASE},opacity ${EASE},left ${EASE},height ${EASE},bottom ${EASE}`,willChange:isAnimating?'transform,opacity,left':'auto'};
     return <div key={slide.id} style={styles} aria-hidden={role!=='center'}>{slide.lineup?<LineupArt/>:<img src={slide.src} alt={role==='center'?`Fizora ${slide.title} can`:''} draggable={false} decoding="async" className="h-full w-full object-contain object-bottom drop-shadow-[0_20px_24px_rgba(0,0,0,.20)]"/>}</div>;
    })}</div>
 
