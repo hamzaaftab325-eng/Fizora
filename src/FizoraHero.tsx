@@ -134,25 +134,25 @@ export default function FizoraHero() {
         />
 
         <div
-          className="pointer-events-none absolute left-1/2 top-[51%] z-[1] h-[56vh] w-[56vh] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20 sm:h-[72vh] sm:w-[72vh]"
+          className="pointer-events-none absolute left-1/2 top-[49%] z-[1] h-[50vh] w-[50vh] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20 sm:h-[64vh] sm:w-[64vh]"
           aria-hidden="true"
-          style={{ backgroundColor: active.panel, transition: `background-color ${EASE}`, opacity: 0.58 }}
+          style={{ backgroundColor: active.panel, transition: `background-color ${EASE}`, opacity: 0.48 }}
         />
         <div
-          className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.22),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.07),rgba(0,0,0,0.10))]"
+          className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_32%,rgba(255,255,255,0.20),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.06),rgba(0,0,0,0.10))]"
           aria-hidden="true"
         />
 
         <div
-          className="pointer-events-none absolute inset-x-0 top-[18%] z-[2] flex select-none items-center justify-center whitespace-nowrap uppercase text-white"
+          className="pointer-events-none absolute inset-x-0 top-[19%] z-[2] flex select-none items-center justify-center whitespace-nowrap uppercase text-white"
           aria-hidden="true"
           style={{
             fontFamily: 'Anton, sans-serif',
-            fontSize: 'clamp(90px, 28vw, 380px)',
+            fontSize: 'clamp(88px, 24vw, 330px)',
             fontWeight: 900,
             lineHeight: 1,
             letterSpacing: '-0.02em',
-            textShadow: '0 10px 35px rgba(0,0,0,.06)',
+            textShadow: '0 10px 35px rgba(0,0,0,.05)',
           }}
         >
           FIZORA
@@ -171,15 +171,15 @@ export default function FizoraHero() {
             const styles: CSSProperties = {
               position: 'absolute',
               aspectRatio: '0.6 / 1',
-              transform: role === 'center' ? `translateX(-50%) scale(${isMobile ? 1.25 : 1.68})` : 'translateX(-50%) scale(1)',
-              filter: role === 'center' ? 'none' : role === 'back' ? 'blur(4px)' : 'blur(2px)',
-              opacity: role === 'center' ? 1 : role === 'back' ? 0.72 : 0.85,
+              transform: role === 'center' ? `translateX(-50%) scale(${isMobile ? 1.06 : 1.08})` : 'translateX(-50%) scale(1)',
+              filter: role === 'center' ? 'none' : role === 'back' ? 'blur(2.5px)' : 'blur(1px)',
+              opacity: role === 'center' ? 1 : role === 'back' ? 0.58 : 0.88,
               zIndex: role === 'center' ? 20 : role === 'back' ? 5 : 10,
-              left: role === 'center' || role === 'back' ? '50%' : role === 'left' ? (isMobile ? '20%' : '30%') : (isMobile ? '80%' : '70%'),
-              height: role === 'center' ? (isMobile ? '60%' : '92%') : role === 'back' ? (isMobile ? '13%' : '22%') : (isMobile ? '16%' : '28%'),
-              bottom: role === 'center' ? (isMobile ? '22%' : '0') : (isMobile ? '32%' : '12%'),
+              left: role === 'center' || role === 'back' ? '50%' : role === 'left' ? (isMobile ? '19%' : '27%') : (isMobile ? '81%' : '73%'),
+              height: role === 'center' ? (isMobile ? '55%' : '76%') : role === 'back' ? (isMobile ? '15%' : '23%') : (isMobile ? '20%' : '32%'),
+              bottom: role === 'center' ? (isMobile ? '19%' : '5%') : (isMobile ? '30%' : '12%'),
               transition: `transform ${EASE}, filter ${EASE}, opacity ${EASE}, left ${EASE}, height ${EASE}, bottom ${EASE}`,
-              willChange: 'transform, filter, opacity, left',
+              willChange: 'transform, filter, opacity, left, height, bottom',
             };
 
             return (
@@ -191,7 +191,7 @@ export default function FizoraHero() {
                     src={slide.src}
                     alt={role === 'center' ? `Fizora ${slide.title} can` : ''}
                     draggable={false}
-                    className="h-full w-full object-contain object-bottom drop-shadow-[0_30px_34px_rgba(0,0,0,0.22)]"
+                    className="h-full w-full object-contain object-bottom drop-shadow-[0_24px_28px_rgba(0,0,0,0.20)]"
                   />
                 )}
               </div>
@@ -199,7 +199,7 @@ export default function FizoraHero() {
           })}
         </div>
 
-        <div className="absolute bottom-6 left-4 z-[60] max-w-[320px] sm:bottom-20 sm:left-24">
+        <div className="absolute bottom-6 left-4 z-[60] max-w-[300px] sm:bottom-[11%] sm:left-[6%]">
           <p className="mb-2 text-base font-bold uppercase text-white/95 sm:mb-3 sm:text-[22px]" style={{ letterSpacing: '0.02em' }}>
             {active.title}
           </p>
@@ -210,39 +210,39 @@ export default function FizoraHero() {
               type="button"
               aria-label="Previous flavor"
               onClick={() => navigate('prev')}
-              className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-transparent text-white transition-[transform,background-color] duration-150 hover:scale-[1.08] hover:bg-white/10 disabled:cursor-wait sm:h-16 sm:w-16"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/90 bg-white/[0.02] text-white backdrop-blur-sm transition-[transform,background-color] duration-150 hover:scale-[1.06] hover:bg-white/10 disabled:cursor-wait sm:h-14 sm:w-14"
               disabled={isAnimating}
             >
-              <ArrowLeft size={26} strokeWidth={2.25} />
+              <ArrowLeft size={24} strokeWidth={2.15} />
             </button>
             <button
               type="button"
               aria-label="Next flavor"
               onClick={() => navigate('next')}
-              className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-transparent text-white transition-[transform,background-color] duration-150 hover:scale-[1.08] hover:bg-white/10 disabled:cursor-wait sm:h-16 sm:w-16"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/90 bg-white/[0.02] text-white backdrop-blur-sm transition-[transform,background-color] duration-150 hover:scale-[1.06] hover:bg-white/10 disabled:cursor-wait sm:h-14 sm:w-14"
               disabled={isAnimating}
             >
-              <ArrowRight size={26} strokeWidth={2.25} />
+              <ArrowRight size={24} strokeWidth={2.15} />
             </button>
           </div>
         </div>
 
         <a
           href="#citrus"
-          className="absolute bottom-6 right-4 z-[60] flex items-center gap-3 uppercase text-white/95 no-underline transition-opacity duration-200 hover:opacity-100 sm:bottom-20 sm:right-10"
+          className="absolute bottom-6 right-4 z-[60] flex items-center gap-3 uppercase text-white/95 no-underline transition-opacity duration-200 hover:opacity-100 sm:bottom-[10%] sm:right-[5%]"
           style={{
             fontFamily: 'Anton, sans-serif',
-            fontSize: 'clamp(20px, 4vw, 56px)',
+            fontSize: 'clamp(20px, 3.2vw, 46px)',
             fontWeight: 400,
             letterSpacing: '-0.02em',
             lineHeight: 1,
           }}
         >
           DISCOVER IT
-          <ArrowRight className="h-5 w-5 sm:h-8 sm:w-8" strokeWidth={2.25} />
+          <ArrowRight className="h-5 w-5 sm:h-7 sm:w-7" strokeWidth={2.15} />
         </a>
 
-        <div className="pointer-events-none absolute bottom-0 left-1/2 z-[4] h-24 w-[70%] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.16),transparent_68%)] blur-xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute bottom-[2%] left-1/2 z-[4] h-16 w-[38%] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.20),transparent_68%)] blur-xl" aria-hidden="true" />
       </div>
     </section>
   );
