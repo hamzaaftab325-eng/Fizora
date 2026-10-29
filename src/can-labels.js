@@ -15,20 +15,17 @@ export function drawCanLabel(canvas,image,index){
  const line=(x,y,w,color=p.ink,thickness=2)=>{c.fillStyle=color;c.fillRect(x,y,w,thickness);};
  const rect=(x,y,w,h,color,r=0)=>{c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();};
  const wave=(base,amplitude,phase,color)=>{c.fillStyle=color;c.beginPath();c.moveTo(0,H);for(let x=0;x<=W;x+=6)c.lineTo(x,base+Math.sin(x/W*TAU+phase)*amplitude);c.lineTo(W,H);c.closePath();c.fill();};
- // Continuous sweeping ribbons, matched to the approved campaign can.
  const ground=c.createLinearGradient(0,0,W,H);ground.addColorStop(0,p.accent);ground.addColorStop(.42,p.base);ground.addColorStop(1,p.accent);c.fillStyle=ground;c.fillRect(0,0,W,H);
  const ribbon=(base,amp,width,phase,color)=>{c.beginPath();for(let x=0;x<=W;x+=4){const y=base+Math.sin(x/W*TAU+phase)*amp;if(!x)c.moveTo(x,y);else c.lineTo(x,y);}for(let x=W;x>=0;x-=4)c.lineTo(x,base+width+Math.sin(x/W*TAU+phase)*amp);c.closePath();c.fillStyle=color;c.fill();};
  ribbon(H*.08,H*.18,H*.065,.4,p.deep);
  ribbon(H*.76,H*.17,H*.19,2.4,p.deep);
  ribbon(H*.83,H*.16,H*.028,2.4,p.ink);
  wave(H*.97,H*.035,1.4,p.accent);
- // Clear front hierarchy leaves space for condensation and metallic shoulders.
  text('SPARKLING DRINK',W/2,H*.255,35,700);
  c.save();c.translate(W/2,H*.44);c.rotate(-.045);
  text('FIZORA',0,0,450,900,p.ink,'center','Barlow Condensed',true,1160);c.restore();
  text(p.flavor,W/2,H*.505,76,800,p.ink,'center','Barlow Condensed');
  text(p.fruit,W/2,H*.55,34,700);
- // Use the occupied alpha bounds so fruit does not shrink inside a padded PNG.
  const crop=document.createElement('canvas');crop.width=image.naturalWidth;crop.height=image.naturalHeight;
  const a=crop.getContext('2d',{willReadFrequently:true});a.drawImage(image,0,0);
  const rgba=a.getImageData(0,0,crop.width,crop.height).data;
@@ -38,7 +35,6 @@ export function drawCanLabel(canvas,image,index){
  c.drawImage(image,x0,y0,sw,sh,W/2-dw/2,H*.575+(H*.30-dh)/2,dw,dh);
  text('FIND YOUR FIZZ.',W/2,H*.92,25,700,p.ink);
  text('330 mL',W/2,H*.977,34,700,p.ink);
- // Reverse: a retail-style information hierarchy, never invented nutrition data.
  for(const center of [0,W]){
   const x=center-390,y=H*.115,w=780;
   rect(x,y,w,H*.795,p.light,32);
@@ -70,7 +66,6 @@ export function drawCanLabel(canvas,image,index){
   text('Batch / best before: pending production',tx,ty+836,23,500,'#102b24','left');
   text('Manufacturer details to be confirmed.',tx,ty+873,23,500,'#102b24','left');
   line(tx,ty+916,tw,'#102b24',2);
-  // A marked barcode placeholder communicates the layout without a false GTIN.
   const by=ty+954,bw=300;
   rect(tx,by,bw,115,'#fffdf1',5);
   let bx=tx+18;
@@ -81,13 +76,47 @@ export function drawCanLabel(canvas,image,index){
   text('330 mL',center,ty+1131,35,700,'#102b24');
   text('CONCEPT PACK · PRODUCT DATA PENDING',center,ty+1180,21,700,'#102b24');
  }
- // Sides bridge the front and information panel without a sticker boundary.
  for(const x of [W*.25,W*.75]){
   c.save();c.translate(x,H*.48);c.rotate(x<W/2?-Math.PI/2:Math.PI/2);
   text('FIND YOUR FIZZ.',0,0,91,800,p.ink,'center','Barlow Condensed');
   text(p.notes,0,54,25,600);c.restore();
  }
  return canvas;
+}
+
+function extractApprovedFront(image){
+ const source=document.createElement('canvas');source.width=image.naturalWidth;source.height=image.naturalHeight;
+ const s=source.getContext('2d',{willReadFrequently:true});s.drawImage(image,0,0);
+ const midY=Math.round(source.height*.54),row=s.getImageData(0,midY,source.width,1).data;
+ let left=source.width,right=0;
+ for(let x=0;x<source.width;x++)if(row[x*4+3]>20){left=Math.min(left,x);right=Math.max(right,x);}
+ if(left>=right){left=Math.round(source.width*.18);right=Math.round(source.width*.82);}
+ const cx=(left+right)/2,radius=(right-left)*.5*.965;
+ const y0=Math.round(source.height*.153),y1=Math.round(source.height*.885);
+ const out=document.createElement('canvas');out.width=960;out.height=1800;
+ const c=out.getContext('2d');c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
+ const strips=240,stripW=out.width/strips,thetaMax=Math.PI*.40;
+ for(let i=0;i<strips;i++){
+  const u0=i/strips-.5,u1=(i+1)/strips-.5;
+  const a0=u0*thetaMax*2,a1=u1*thetaMax*2;
+  const sx0=cx+radius*Math.sin(a0),sx1=cx+radius*Math.sin(a1);
+  const sx=Math.min(sx0,sx1),sw=Math.max(1,Math.abs(sx1-sx0)+1);
+  c.drawImage(image,sx,y0,sw,y1-y0,i*stripW,0,stripW+1,out.height);
+ }
+ return out;
+}
+
+function overlayApprovedFront(label,approved){
+ const c=label.getContext('2d'),W=label.width,H=label.height;
+ const x0=W*.275,x1=W*.725,y0=H*.02,y1=H*.98;
+ const layer=document.createElement('canvas');layer.width=W;layer.height=H;
+ const l=layer.getContext('2d');l.imageSmoothingEnabled=true;l.imageSmoothingQuality='high';
+ l.drawImage(approved,x0,y0,x1-x0,y1-y0);
+ l.globalCompositeOperation='destination-in';
+ const feather=l.createLinearGradient(x0,0,x1,0);
+ feather.addColorStop(0,'rgba(0,0,0,0)');feather.addColorStop(.07,'rgba(0,0,0,1)');feather.addColorStop(.93,'rgba(0,0,0,1)');feather.addColorStop(1,'rgba(0,0,0,0)');
+ l.fillStyle=feather;l.fillRect(x0,y0,x1-x0,y1-y0);
+ c.drawImage(layer,0,0);
 }
 
 function loadImage(src){return new Promise((resolve,reject)=>{
@@ -101,8 +130,6 @@ function cropLabel(label,back=false){
  else c.drawImage(label,label.width/2-half,0,out.width,label.height,0,0,out.width,label.height);
  return out.toDataURL('image/png');
 }
-// Graceful image fallback uses the exact same wrap, projected onto a cylinder.
-// It is also used before WebGL finishes loading and in browsers without WebGL.
 function packshot(label,back=false){
  const canvas=document.createElement('canvas');canvas.width=600;canvas.height=1300;
  const c=canvas.getContext('2d'),left=45,right=555,top=62,bottom=1236,r=(right-left)/2;
@@ -128,11 +155,17 @@ function packshot(label,back=false){
 }
 export async function preparePackaging(){
  const names=['citrus','berry','tropical'];
- const [images]=await Promise.all([
+ const [images,canImages]=await Promise.all([
   Promise.all(names.map(name=>loadImage(`/images/${name}-fruit.webp`))),
+  Promise.all(names.map(name=>loadImage(`/images/${name}-can.webp`))),
   Promise.all([document.fonts.load('italic 900 100px "Barlow Condensed"'),document.fonts.load('800 50px "Barlow Condensed"'),document.fonts.load('700 30px "DM Sans"'),document.fonts.load('500 24px "DM Sans"')])
  ]);
- const canvases=images.map((image,index)=>drawCanLabel(document.createElement('canvas'),image,index));
+ const approvedFronts=canImages.map(extractApprovedFront);
+ const canvases=images.map((image,index)=>{
+  const label=drawCanLabel(document.createElement('canvas'),image,index);
+  overlayApprovedFront(label,approvedFronts[index]);
+  return label;
+ });
  const previews=canvases.map(label=>({front:cropLabel(label),back:cropLabel(label,true),frontCan:packshot(label),backCan:packshot(label,true)}));
  return {canvases,previews};
 }
