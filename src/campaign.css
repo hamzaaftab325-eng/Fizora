@@ -5,14 +5,9 @@
 .hero-mist{left:58%;top:50%;width:min(58vw,780px);height:min(70vh,760px);transform:translate(-50%,-50%);background:radial-gradient(ellipse at 50% 55%,rgba(255,255,255,.08),rgba(255,255,255,.02) 48%,transparent 72%);opacity:.8}
 .fresh-fruit{position:absolute;width:min(34vw,440px);height:min(31vw,390px);right:4%;bottom:3.5%;transform:none;z-index:2}
 .fresh-fruit img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .55s;filter:drop-shadow(0 18px 18px rgba(4,28,21,.22))}
-.photo-hero-can{left:58%!important;top:49%!important;height:min(66vh,680px)!important;max-height:680px;z-index:3;aspect-ratio:auto!important;transform-style:preserve-3d}
-.photo-hero-can img{width:auto;height:100%;object-fit:contain;transform-origin:50% 52%;backface-visibility:hidden;will-change:transform;animation:fizora-can-showcase 8.4s cubic-bezier(.45,0,.55,1) infinite;filter:drop-shadow(0 28px 30px rgba(0,32,19,.20)) drop-shadow(-3px 5px 8px rgba(255,255,255,.15)) saturate(1.04) contrast(1.025)}
-@keyframes fizora-can-showcase{
- 0%,100%{transform:translate3d(0,2px,0) perspective(1400px) rotateY(-2.6deg) rotateX(.5deg) rotateZ(-.9deg) scale(1)}
- 25%{transform:translate3d(5px,-7px,0) perspective(1400px) rotateY(.8deg) rotateX(-.35deg) rotateZ(.15deg) scale(1.004)}
- 50%{transform:translate3d(0,-13px,0) perspective(1400px) rotateY(2.8deg) rotateX(.45deg) rotateZ(.9deg) scale(1.009)}
- 75%{transform:translate3d(-5px,-6px,0) perspective(1400px) rotateY(-.6deg) rotateX(-.3deg) rotateZ(-.15deg) scale(1.003)}
-}
+.photo-hero-can{left:71.5%;top:49%;height:min(66vh,680px)!important;max-height:680px;z-index:3;aspect-ratio:2/3!important;transform-style:preserve-3d;will-change:transform,left,top}
+.hero-can-stack{position:relative;width:100%;height:100%;transform-style:preserve-3d}
+.photo-hero-can img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 52%;backface-visibility:hidden;will-change:transform,opacity;transition:opacity .28s linear;filter:drop-shadow(0 28px 30px rgba(0,32,19,.20)) drop-shadow(-3px 5px 8px rgba(255,255,255,.15)) saturate(1.04) contrast(1.025)}
 .can-stage.is-photo-hero canvas{display:none}
 .can-stage.is-photo-hero .can-fallback{opacity:1}
 .backdrop,.liquid-surface{filter:saturate(1.14) contrast(1.045)}
@@ -37,13 +32,12 @@
 .flavor-detail{padding:30px;border-radius:24px;background:#e8ebdc;border:0}
 .footer{background:radial-gradient(ellipse at 80% 100%,#286936,transparent 60%),#062d20}
 .footer-brand{color:#e4ef71}
-.can-fallback.photo-hero-can img{filter:drop-shadow(0 28px 30px rgba(0,32,19,.20)) drop-shadow(-3px 5px 8px rgba(255,255,255,.15)) saturate(1.04) contrast(1.025)}
+.can-fallback img{filter:drop-shadow(0 22px 28px rgba(0,32,19,.22))}
 @media(min-width:761px){.can-inspector{bottom:8%}.flavor-section{padding-top:135px}.display{font-size:clamp(98px,10.8vw,185px)}.flavor-berry .display{font-size:clamp(80px,9vw,155px)}.flavor-tropical .display{font-size:clamp(80px,8.5vw,148px)}}
 @media(max-width:760px){
  .hero-spotlight{left:50%;top:37%;width:min(95vw,460px)}
  .hero-mist{left:50%;top:38%;width:min(118vw,560px);height:min(76svh,620px)}
- .photo-hero-can{left:50%!important;top:40%!important;height:min(44svh,390px)!important}
- .photo-hero-can img{animation-duration:9.2s}
+ .photo-hero-can{left:50%;top:40%;height:min(44svh,390px)!important}
  .fresh-fruit{width:min(50vw,270px);height:min(43vw,225px);right:2%;bottom:18%}
  .display{font-style:italic}
  .flavor-info>p{font-size:12px}
@@ -56,6 +50,6 @@
  .flavor-detail .pill-button{margin-left:0}
 }
 @media(min-width:761px){.theme-berry .fresh-fruit,.theme-tropical .fresh-fruit{right:6%;left:auto}}
-@media(prefers-reduced-motion:reduce){.fresh-fruit img{transition:none}.photo-hero-can img{animation:none!important;transform:none!important}}
+@media(prefers-reduced-motion:reduce){.fresh-fruit img{transition:none}.photo-hero-can{will-change:auto}.photo-hero-can img{transition:none;transform:none!important}}
 
 .label-loading{grid-column:1/-1;padding:80px 0;text-align:center;font-size:12px;font-weight:700;letter-spacing:.08em;opacity:.65}
