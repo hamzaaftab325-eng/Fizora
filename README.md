@@ -15,7 +15,7 @@ pnpm dev
 The development server runs at `http://localhost:4173`.
 
 ```sh
-pnpm test     # Wave, buoyancy, geometry, and refraction checks
+pnpm test     # Wave stability and frame-rate-independent buoyancy checks
 pnpm build    # Production assets in dist/
 pnpm preview  # Serve the production build locally
 ```
@@ -52,9 +52,6 @@ Images are local WebP assets with their original dimensions and transparency pre
 | `src/main.jsx` | React layout, controls, section state, and animation orchestration |
 | `src/can-scene.js` | 3D can, materials, lighting, and resource cleanup |
 | `src/can-geometry.js` | Can body and physically proportioned label UV mapping |
-| `src/ice-scene.js` / `src/ice-geometry.js` | Modeled ice, internal detail, and surface droplets |
-| `src/ice-materials.js` | Shared refraction capture and ice/water materials |
-| `src/surface-geometry.js` | Smooth normals across coincident vertices and UV seams |
 | `src/can-labels.js` / `src/packaging.js` | Full-wrap label artwork and packaging colors |
 | `src/liquid-field.js` | Water simulation and buoyancy physics |
 | `src/liquid-background.js` | GPU/software refraction, bubbles, and splash rendering |
@@ -69,27 +66,19 @@ FIZORA is a presentation concept, not an ecommerce checkout. Nutrition, ingredie
 
 ### Product rendering
 
-The Three.js scene uses a modeled can with 946 instanced condensation beads, a
-machined lid and pull tab, continuous front/back labels, and a procedural studio
-lighting environment. Condensation sits against the can wall. Smooth surface normals,
-subtle label relief, and restrained clearcoat keep reflections continuous.
+The Three.js scene uses a fully modeled can with 620 instanced condensation beads,
+a machined lid and pull tab, continuous front/back labels, and a procedural studio
+lighting environment. Four independently moving rounded ice meshes include internal
+fracture lines and trapped air pockets. Ice and water beads refract a shared scene
+capture at half resolution; geometry and materials are reused between cubes.
 
-Four independently moving ice meshes have asymmetric melted edges, internal frost,
-fracture lines, and trapped air. Surface droplets are placed against each cube's
-actual geometry. Ice is entirely geometry and shaders; there are no ice images.
-
-Ice and water beads share a scene capture with projected thickness-based refraction
-and Fresnel reflections. Internal frost and air are visible through that capture.
-Its resolution scales uniformly to preserve aspect ratio, with desktop/mobile quality
-limits. This is a real-time screen-space approximation, not a ray-traced volume.
-The refraction backdrop uses the studio gradient rather than the live liquid field.
-
+Ice is entirely geometry and shaders. The previous photographic ice/splash overlay
+has been removed, including from collection cards. Procedural SVG studio backgrounds
+contain only gradients; fruit artwork remains on the labels and beside the product.
 Click ripples and cube impulses share the page's animation clock. Pausing motion or
 using reduced motion freezes the ambient scene. Without WebGL the page displays the
-matching front/back can images and omits the 3D ice. Fruit artwork remains on labels
-and beside the product.
+matching front/back can images and omits the 3D ice, with no fake ice-image fallback.
 
-Validation: seven tests cover wave/buoyancy behavior, geometry bounds, label UVs,
-surface normals, refraction aspect ratio, and capture-state cleanup. The production
-build passes. The cloud preview has WebGL disabled, so final GPU appearance still
-requires review in a WebGL-capable browser.
+Validation: production build, wave/buoyancy simulation tests, geometry bounds and UV
+checks. The cloud preview has WebGL disabled, so final GPU appearance must be reviewed
+in a WebGL-capable browser; successful compilation is not a visual quality guarantee.

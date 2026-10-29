@@ -1,5 +1,4 @@
 import {LatheGeometry,Vector2} from 'three';
-import {smoothSurfaceNormals} from './surface-geometry.js';
 
 export const CAN_RADIUS=.655;
 export const CAN_MIN_Y=-1.45;
@@ -35,7 +34,7 @@ export function createCanBodyGeometry(segments=160){
   uv.setY(i,Math.max(0,Math.min(1,(y-CAN_MIN_Y)/CAN_BODY_HEIGHT)));
  }
  position.needsUpdate=true;uv.needsUpdate=true;
- smoothSurfaceNormals(geometry);
+ geometry.computeVertexNormals();
  geometry.computeBoundingSphere();
  return geometry;
 }
@@ -47,6 +46,6 @@ export function createLidGeometry(segments=160){
   [.49,1.451],[.525,1.449],[.548,1.455],[.575,1.446]
  ];
  const geometry=new LatheGeometry(profile.map(p=>new Vector2(...p)),segments);
- smoothSurfaceNormals(geometry);
+ geometry.computeVertexNormals();
  return geometry;
 }

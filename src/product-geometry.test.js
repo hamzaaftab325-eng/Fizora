@@ -21,16 +21,3 @@ test('label UV height follows the can wall and stays within the wrap',()=>{
  }
  geometry.dispose();
 });
-
-
-test('ice and aluminum reflections are continuous across coincident UV seams',()=>{
- for(const geometry of [createIceGeometry(2),createCanBodyGeometry()]){
-  const p=geometry.attributes.position,n=geometry.attributes.normal,known=new Map();let shared=0;
-  for(let i=0;i<p.count;i++){
-   const key=[p.getX(i),p.getY(i),p.getZ(i)].map(v=>Math.round(v*1e5)).join(',');
-   const normal=[n.getX(i),n.getY(i),n.getZ(i)];
-   if(known.has(key)){shared++;assert.ok(normal.every((v,j)=>Math.abs(v-known.get(key)[j])<1e-6));}else known.set(key,normal);
-  }
-  assert.ok(shared>10);geometry.dispose();
- }
-});
