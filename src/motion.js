@@ -1,14 +1,18 @@
 export const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 export const lerp=(a,b,t)=>a+(b-a)*t;
 export const ease=t=>t*t*(3-2*t);
-// Zero velocity and acceleration at the ends: the can settles instead of snapping.
+// Smooth cinematic easing with zero snap at the ends.
 export const cinematicEase=t=>clamp(t*t*t*(t*(t*6-15)+10));
+// Keep the cinematic feel, but preserve a small linear component so motion responds
+// from the very first scroll pixel instead of feeling delayed.
+export const responsiveEase=t=>{t=clamp(t);return lerp(t,cinematicEase(t),.78);};
 export const damp=(value,target,rate,dt)=>lerp(value,target,1-Math.exp(-rate*Math.max(0,dt)));
 export function scrollState(y,offsets,height,mobile=false){
  let p=0;
  if(y>=offsets[1])p=1+(y-offsets[1])/Math.max(1,offsets[2]-offsets[1]);
  else p=(y-offsets[0])/Math.max(1,offsets[1]-offsets[0]);
- p=clamp(p,0,2);const i=Math.min(1,Math.floor(p)),raw=p-i,t=cinematicEase(clamp((raw-.12)/.76));
+ p=clamp(p,0,2);
+ const i=Math.min(1,Math.floor(p)),raw=p-i,t=responsiveEase(raw);
  const arc=Math.sin(t*Math.PI),direction=i===0?-1:1,x=[.43,-.43,.43],tilts=[-.15,.17,-.12];
  return {i,t,p,active:Math.min(2,Math.round(p)),arc,
   x:mobile?Math.sin(t*Math.PI*2)*.045:lerp(x[i],x[i+1],t),
