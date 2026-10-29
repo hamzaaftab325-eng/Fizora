@@ -3,6 +3,8 @@ const bar=document.getElementById('loader-bar');
 const count=document.getElementById('loader-count');
 const root=document.documentElement;
 
+root.classList.add('page-reveal-ready');
+
 if(loader){
  root.classList.add('is-loading');
  const started=performance.now();
@@ -10,6 +12,11 @@ if(loader){
  let progress=0;
  let loaded=document.readyState==='complete';
  let raf=0;
+
+ const revealPage=()=>{
+  requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('page-entered')));
+  window.dispatchEvent(new CustomEvent('fizora:page-enter'));
+ };
 
  const finish=()=>{
   const elapsed=performance.now()-started;
@@ -20,6 +27,7 @@ if(loader){
    if(count)count.textContent='100';
    loader.classList.add('is-leaving');
    root.classList.remove('is-loading');
+   revealPage();
    setTimeout(()=>loader.remove(),760);
   },wait);
  };
@@ -43,4 +51,6 @@ if(loader){
  setTimeout(()=>{
   if(loader.isConnected){loaded=true;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);}
  },4500);
+}else{
+ root.classList.add('page-entered');
 }
