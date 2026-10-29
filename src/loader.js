@@ -11,10 +11,12 @@ if(loader){
  const minimum=950;
  let progress=0;
  let pageLoaded=document.readyState==='complete';
- let canReady=window.__fizoraCanReady===true;
+ let forceReveal=false;
  let raf=0;
  let finished=false;
  let revealed=false;
+
+ const canIsReady=()=>Boolean(document.querySelector('.can-stage.is-ready canvas'));
 
  const revealPage=()=>{
   if(revealed)return;
@@ -28,7 +30,7 @@ if(loader){
      root.classList.remove('page-entered');
     },1550);
    }));
-  },120);
+  },150);
  };
 
  const finish=()=>{
@@ -49,7 +51,8 @@ if(loader){
 
  const tick=()=>{
   if(!loader.isConnected)return;
-  const ready=pageLoaded&&canReady;
+  const sceneReady=canIsReady();
+  const ready=(pageLoaded&&sceneReady)||forceReveal;
   const ceiling=ready?100:92;
   const speed=progress<58?.85:progress<82?.34:.10;
   progress=Math.min(ceiling,progress+speed);
@@ -60,17 +63,12 @@ if(loader){
   raf=requestAnimationFrame(tick);
  };
 
- const restart=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);};
- const onLoad=()=>{pageLoaded=true;restart();};
- const onCanReady=()=>{canReady=true;restart();};
- if(pageLoaded)onLoad();else window.addEventListener('load',onLoad,{once:true});
- if(!canReady)window.addEventListener('fizora:can-ready',onCanReady,{once:true});
+ const onLoad=()=>{pageLoaded=true;};
+ if(!pageLoaded)window.addEventListener('load',onLoad,{once:true});
  raf=requestAnimationFrame(tick);
 
- // Safety valve: never trap the user behind the loader if WebGL is unavailable.
- setTimeout(()=>{
-  if(loader.isConnected&&!finished){pageLoaded=true;canReady=true;restart();}
- },4500);
+ // Safety valve for unsupported WebGL or an unexpected asset failure.
+ setTimeout(()=>{if(loader.isConnected&&!finished)forceReveal=true;},6500);
 }else{
  root.classList.add('page-entered');
  requestAnimationFrame(()=>requestAnimationFrame(()=>{
