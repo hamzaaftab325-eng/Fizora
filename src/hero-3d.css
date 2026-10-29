@@ -1,8 +1,0 @@
-/* Real 3D hero can. The approved 2D packshot remains as a no-WebGL fallback. */
-.hero-3d-canvas{position:absolute;inset:0;z-index:3;display:block!important;width:100%;height:100%;opacity:0;transition:opacity .55s ease;pointer-events:none}
-.can-stage.webgl-ready .hero-3d-canvas{opacity:1}
-.can-stage.webgl-ready .photo-hero-can{opacity:0!important;visibility:hidden}
-.can-stage.webgl-ready .hero-spotlight{opacity:.48}
-.can-stage.webgl-ready .hero-mist{opacity:.52}
-@media(max-width:760px){.hero-3d-canvas{transition-duration:.35s}}
-@media(prefers-reduced-motion:reduce){.hero-3d-canvas{transition:none}}
