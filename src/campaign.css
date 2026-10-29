@@ -5,9 +5,12 @@
 .hero-mist{left:58%;top:50%;width:min(58vw,780px);height:min(70vh,760px);transform:translate(-50%,-50%);background:radial-gradient(ellipse at 50% 55%,rgba(255,255,255,.08),rgba(255,255,255,.02) 48%,transparent 72%);opacity:.8}
 .fresh-fruit{position:absolute;width:min(34vw,440px);height:min(31vw,390px);right:4%;bottom:3.5%;transform:none;z-index:2}
 .fresh-fruit img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .55s;filter:drop-shadow(0 18px 18px rgba(4,28,21,.22))}
-.photo-hero-can{left:71.5%;top:49%;height:min(66vh,680px)!important;max-height:680px;z-index:3;aspect-ratio:2/3!important;transform-style:preserve-3d;will-change:transform,left,top}
-.hero-can-stack{position:relative;width:100%;height:100%;transform-style:preserve-3d}
-.photo-hero-can img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 52%;backface-visibility:hidden;will-change:transform,opacity;transition:opacity .28s linear;filter:drop-shadow(0 28px 30px rgba(0,32,19,.20)) drop-shadow(-3px 5px 8px rgba(255,255,255,.15)) saturate(1.04) contrast(1.025)}
+.photo-hero-can{left:71.5%;top:49%;height:min(66vh,680px)!important;max-height:680px;z-index:3;aspect-ratio:2/3!important;transform-style:preserve-3d;perspective:1400px;will-change:transform,left,top}
+.hero-can-turner{position:relative;width:100%;height:100%;transform-style:preserve-3d;will-change:transform}
+.hero-can-pair{position:absolute;inset:0;transform-style:preserve-3d;will-change:opacity;transition:opacity .12s linear}
+.photo-hero-can .can-face{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 52%;backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:transform;filter:drop-shadow(0 28px 30px rgba(0,32,19,.20)) drop-shadow(-3px 5px 8px rgba(255,255,255,.15)) saturate(1.04) contrast(1.025)}
+.photo-hero-can .can-front{transform:rotateY(0deg)}
+.photo-hero-can .can-back{transform:rotateY(180deg)}
 .can-stage.is-photo-hero canvas{display:none}
 .can-stage.is-photo-hero .can-fallback{opacity:1}
 .backdrop,.liquid-surface{filter:saturate(1.14) contrast(1.045)}
@@ -50,6 +53,6 @@
  .flavor-detail .pill-button{margin-left:0}
 }
 @media(min-width:761px){.theme-berry .fresh-fruit,.theme-tropical .fresh-fruit{right:6%;left:auto}}
-@media(prefers-reduced-motion:reduce){.fresh-fruit img{transition:none}.photo-hero-can{will-change:auto}.photo-hero-can img{transition:none;transform:none!important}}
+@media(prefers-reduced-motion:reduce){.fresh-fruit img{transition:none}.photo-hero-can{will-change:auto}.hero-can-turner{transform:none!important}.hero-can-pair{transition:none}.photo-hero-can .can-front{transform:none!important}.photo-hero-can .can-back{display:none}}
 
 .label-loading{grid-column:1/-1;padding:80px 0;text-align:center;font-size:12px;font-weight:700;letter-spacing:.08em;opacity:.65}

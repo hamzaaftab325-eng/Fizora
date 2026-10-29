@@ -10,9 +10,9 @@ import './campaign.css';
 const Arrow=({down=false})=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d={down?'M12 4v16m-6-6 6 6 6-6':'M4 12h16m-6-6 6 6-6 6'}/></svg>;
 const Spark=()=> <svg viewBox="0 0 40 40" fill="currentColor" aria-hidden="true"><path d="M20 0l4.4 13.8L37 7l-6.8 12.6L40 24l-14.3 1.7L24 40l-4.4-9.8L7 37l6.8-12.6L0 20l14.3-1.7z"/></svg>;
 function App(){
- const root=useRef(),stage=useRef(),backgrounds=useRef([]),sections=useRef([]),collection=useRef(),fallback=useRef(),liquidHost=useRef(),liquidFx=useRef(),liquidShade=useRef([]),fruitImages=useRef([]),canImages=useRef([]),spotlight=useRef(),mist=useRef();
+ const root=useRef(),stage=useRef(),backgrounds=useRef([]),sections=useRef([]),collection=useRef(),fallback=useRef(),liquidHost=useRef(),liquidFx=useRef(),liquidShade=useRef([]),fruitImages=useRef([]),canPairs=useRef([]),turner=useRef(),spotlight=useRef(),mist=useRef();
  const [active,setActive]=useState(0),[selected,setSelected]=useState(0),[paused,setPaused]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
- const [labels,setLabels]=useState([]),[labelFlavor,setLabelFlavor]=useState(0);
+ const [labels,setLabels]=useState([]),[backShots,setBackShots]=useState([]),[labelFlavor,setLabelFlavor]=useState(0);
  const labelDialog=useRef();
  const [liquidReady,setLiquidReady]=useState(false),[hasSplashed,setHasSplashed]=useState(false);
  const cardPointer=e=>{if(paused||e.pointerType==='touch')return;const card=e.currentTarget,b=card.getBoundingClientRect();card.style.setProperty('--card-rx',`${(1-(e.clientY-b.top)/b.height*2)*2}deg`);card.style.setProperty('--card-ry',`${((e.clientX-b.left)/b.width*2-1)*3}deg`);};
@@ -26,6 +26,8 @@ function App(){
   const preference=()=>setPaused(reduced.matches);reduced.addEventListener('change',preference);
   const measure=()=>{height=innerHeight;offsets=[...sections.current,collection.current].map(s=>s.getBoundingClientRect().top+window.scrollY);liquid?.resize();};measure();
   createLiquidBackground(liquidHost.current,liquidFx.current,flavors.map(f=>f.background)).then(effect=>{if(dead){effect.dispose();return;}liquid=effect;setLiquidReady(true);}).catch(()=>{});
+  let packagingJob=null;const prepareBacks=async()=>{try{const {preparePackaging}=await import('./can-labels.js');const assets=await preparePackaging();if(dead)return;setLabels(assets.previews);setBackShots(assets.previews.map(p=>p.backCan));}catch{}};
+  if('requestIdleCallback' in window)packagingJob=requestIdleCallback(prepareBacks,{timeout:1800});else packagingJob=setTimeout(prepareBacks,700);
   const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');observer.unobserve(e.target);}}),{threshold:.15});document.querySelectorAll('[data-reveal]').forEach(el=>observer.observe(el));
   const canInteract=e=>!pausedRef.current&&visibility>.8&&!labelDialog.current?.open&&!e.target.closest('a,button,input,select,textarea,dialog,#collection,.footer');
   const pointer=e=>{if(e.pointerType!=='touch'&&canInteract(e))liquid?.pointer(e.clientX/innerWidth,e.clientY/innerHeight);};
@@ -39,15 +41,16 @@ function App(){
    root.current.style.setProperty('--flight-energy',state.arc.toFixed(3));
    const floating=motionPaused?(buoyancy.reset(),buoyancy.state):buoyancy.update(dt);
    const mobile=innerWidth<760,flightX=50+state.x*(mobile?24:50),dive=state.arc*(mobile?height*.055:height*.13),direction=state.i===0?-1:1,yaw=direction*state.arc*(mobile?3.5:7),scale=1+state.arc*(mobile?.035:.085),floatY=motionPaused?0:Math.sin(elapsed*1.05)*5-floating.y*(mobile?26:48),roll=-.13+(motionPaused?0:state.tilt*.72)+floating.roll*.45;
-   if(fallback.current){fallback.current.style.left=`${flightX}%`;fallback.current.style.top=`calc(${mobile?40:49}% + ${dive}px)`;fallback.current.style.transform=`translate(calc(-50% + ${floating.x*(mobile?22:42)}px),calc(-50% + ${floatY}px)) perspective(1400px) rotateY(${yaw}deg) rotateZ(${roll}rad) scale(${scale})`;}
+   if(fallback.current){fallback.current.style.left=`${flightX}%`;fallback.current.style.top=`calc(${mobile?40:49}% + ${dive}px)`;fallback.current.style.transform=`translate(calc(-50% + ${floating.x*(mobile?22:42)}px),calc(-50% + ${floatY}px)) rotateY(${yaw}deg) rotateZ(${roll}rad) scale(${scale})`;}
+   const spin=motionPaused?0:state.t*360;if(turner.current)turner.current.style.transform=`rotateY(${spin}deg) rotateX(${state.arc*(mobile?1.5:3.2)}deg)`;
+   const blend=Math.max(0,Math.min(1,(state.t-.42)/.16));const pairOps=[0,0,0];pairOps[state.i]=1-blend;pairOps[state.i+1]=blend;canPairs.current.forEach((pair,i)=>{if(!pair)return;pair.style.opacity=pairOps[i]??0;});
    if(spotlight.current){spotlight.current.style.left=`${flightX}%`;spotlight.current.style.top=`calc(${mobile?40:50}% + ${dive*.42}px)`;}
    if(mist.current){mist.current.style.left=`${flightX}%`;mist.current.style.top=`calc(${mobile?40:50}% + ${dive*.3}px)`;}
-   canImages.current.forEach((img,i)=>{if(!img)return;img.style.opacity=opacities[i]??0;img.style.transform=`translate3d(0,${(1-(opacities[i]??0))*8}px,0) scale(${.985+(opacities[i]??0)*.015})`;});
    fruitImages.current.forEach((img,i)=>{if(!img)return;const o=opacities[i]??0;img.style.opacity=o;img.style.transform=`translate3d(${state.x*(mobile?2:5)}px,${(1-o)*34+state.arc*8}px,0) scale(${.9+o*.1}) rotate(${(1-o)*(i===1?-3:3)}deg)`;});
    liquid?.render(state,dt,motionPaused);
   };frame=requestAnimationFrame(animate);addEventListener('resize',measure);addEventListener('pointermove',pointer,{passive:true});addEventListener('pointerdown',down,{passive:true});addEventListener('pointerup',up,{passive:true});addEventListener('pointercancel',cancel,{passive:true});
   document.fonts.ready.then(()=>{if(!dead)measure();});
-  return()=>{dead=true;cancelAnimationFrame(frame);observer.disconnect();removeEventListener('resize',measure);removeEventListener('pointermove',pointer);removeEventListener('pointerdown',down);removeEventListener('pointerup',up);removeEventListener('pointercancel',cancel);reduced.removeEventListener('change',preference);liquid?.dispose();};
+  return()=>{dead=true;cancelAnimationFrame(frame);observer.disconnect();removeEventListener('resize',measure);removeEventListener('pointermove',pointer);removeEventListener('pointerdown',down);removeEventListener('pointerup',up);removeEventListener('pointercancel',cancel);reduced.removeEventListener('change',preference);if(packagingJob!==null){if('cancelIdleCallback' in window)cancelIdleCallback(packagingJob);else clearTimeout(packagingJob);}liquid?.dispose();};
  },[]);
  const current=flavors[active],picked=flavors[selected];
  return <div ref={root} className={`site theme-${current.id} ${paused?'motion-paused':''} ${liquidReady?'liquid-ready':''} ${hasSplashed?'has-splashed':''}`} style={{'--story-ink':current.ink}}>
@@ -55,7 +58,7 @@ function App(){
   <div className="backdrops" aria-hidden="true">{flavors.map((f,i)=><div key={f.id} className={`backdrop backdrop-${f.id}`} ref={el=>backgrounds.current[i]=el} style={{backgroundImage:`url(${f.background})`,opacity:i===0?1:0}}/>)}<div className="liquid-layer" ref={liquidHost}/><div className="liquid-shades">{flavors.map((f,i)=><div key={f.id} ref={el=>liquidShade.current[i]=el} className={`liquid-shade liquid-shade-${f.id}`} style={{opacity:i===0?1:0}}/>)}</div></div>
   <canvas className="liquid-atmosphere" ref={liquidFx} aria-hidden="true"/>
   <header className="nav"><a className="wordmark" href="#citrus" aria-label="Fizora home">FIZORA</a><nav aria-label="Main navigation"><a className="nav-link" href="#collection">Meet the flavors</a><button className="motion-toggle" onClick={()=>setPaused(p=>!p)} aria-pressed={paused} aria-label={paused?'Resume motion':'Pause motion'} title={paused?'Resume motion':'Pause motion'}>{paused?<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="m6 3 11 7-11 7z"/></svg>:<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M5 3h3v14H5zm7 0h3v14h-3z"/></svg>}</button><a className="nav-cta" href="#collection">Find your fizz <Arrow/></a></nav></header>
-  <div ref={stage} className="can-stage is-ready is-photo-hero" aria-hidden="true"><div ref={spotlight} className="hero-spotlight"/><div ref={mist} className="hero-mist"/><div className="fresh-fruit">{flavors.map((f,i)=><img ref={el=>fruitImages.current[i]=el} key={f.id} src={`/images/${f.id}-fruit.webp`} alt="" style={{opacity:i===0?1:0}}/>)}</div><div ref={fallback} className="can-fallback photo-hero-can"><div className="hero-can-stack">{flavors.map((f,i)=><img ref={el=>canImages.current[i]=el} key={f.id} src={f.can} alt="" style={{opacity:i===0?1:0}}/>)}</div></div></div>
+  <div ref={stage} className="can-stage is-ready is-photo-hero" aria-hidden="true"><div ref={spotlight} className="hero-spotlight"/><div ref={mist} className="hero-mist"/><div className="fresh-fruit">{flavors.map((f,i)=><img ref={el=>fruitImages.current[i]=el} key={f.id} src={`/images/${f.id}-fruit.webp`} alt="" style={{opacity:i===0?1:0}}/>)}</div><div ref={fallback} className="can-fallback photo-hero-can"><div ref={turner} className="hero-can-turner">{flavors.map((f,i)=><div ref={el=>canPairs.current[i]=el} className="hero-can-pair" key={f.id} style={{opacity:i===0?1:0}}><img className="can-face can-front" src={f.can} alt=""/><img className="can-face can-back" src={backShots[i]||f.can} alt=""/></div>)}</div></div></div>
   <main>
    <div className="story" id="flavors">
     {flavors.map((f,i)=><section key={f.id} id={f.id} ref={el=>sections.current[i]=el} className={`flavor-section flavor-${f.id}`} aria-labelledby={`${f.id}-heading`} style={{'--ink':f.ink,'--accent':f.accent}}>
