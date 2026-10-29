@@ -1,18 +1,17 @@
 import {LatheGeometry,Vector2} from 'three';
 
-// Modeled after a real 330 mL sleek can: tall body, necked shoulder, rolled top region,
-// and a domed base support profile. Units are scene units, scaled for the existing camera.
+// Realistic 330 mL sleek-can proportions. The body now closes cleanly into a
+// narrower neck so the lid and double seam sit on the can instead of floating.
 export const CAN_RADIUS=.58;
 export const CAN_MIN_Y=-1.50;
-export const CAN_MAX_Y=1.38;
+export const CAN_MAX_Y=1.405;
 export const CAN_BODY_HEIGHT=CAN_MAX_Y-CAN_MIN_Y;
 export const CAN_CIRCUMFERENCE=2*Math.PI*CAN_RADIUS;
 
-// Radius, Y pairs for the outside wall profile.
 export const CAN_PROFILE=[
  [.46,-1.50],[.515,-1.475],[.54,-1.445],[.552,-1.40],[.565,-1.34],[.575,-1.28],
- [.579,-1.22],[.58,-1.15],[.58,1.03],[.579,1.08],[.576,1.14],[.568,1.21],
- [.555,1.27],[.537,1.32],[.505,1.355],[.485,1.372],[.472,1.38]
+ [.579,-1.22],[.58,-1.15],[.58,1.035],[.579,1.085],[.575,1.14],[.565,1.205],
+ [.552,1.26],[.535,1.31],[.515,1.35],[.501,1.375],[.498,1.405]
 ];
 
 export function createCanBodyGeometry(segments=192){
@@ -24,9 +23,9 @@ export function createCanBodyGeometry(segments=192){
   if(radius>.2){
    const angle=Math.atan2(z,x);
    const bodyWeight=Math.max(0,1-Math.min(1,Math.abs((y-.02))/1.18));
-   const drawWave=Math.sin(y*35+angle*1.8)*.00016*bodyWeight;
-   const broad=Math.sin(angle*4.0+y*2.3)*.00034;
-   const micro=Math.sin(angle*18.0-y*9.5)*.00009;
+   const drawWave=Math.sin(y*35+angle*1.8)*.00014*bodyWeight;
+   const broad=Math.sin(angle*4.0+y*2.3)*.00028;
+   const micro=Math.sin(angle*18.0-y*9.5)*.00008;
    const scale=1+drawWave+broad+micro;
    x*=scale;z*=scale;
    position.setXYZ(i,x,y,z);
@@ -39,10 +38,11 @@ export function createCanBodyGeometry(segments=192){
  return geometry;
 }
 
-export function createLidGeometry(segments=160){
+export function createLidGeometry(segments=192){
+ // Shallow stamped end: recessed center panel rising into the rolled seam.
  const profile=[
-  [0,1.442],[.12,1.442],[.22,1.441],[.31,1.438],[.39,1.433],
-  [.455,1.427],[.49,1.422],[.52,1.425],[.548,1.434],[.57,1.446]
+  [0,1.421],[.10,1.421],[.22,1.420],[.32,1.418],[.40,1.414],
+  [.455,1.413],[.478,1.418],[.495,1.426],[.507,1.434],[.515,1.439]
  ];
  const geometry=new LatheGeometry(profile.map(p=>new Vector2(...p)),segments);
  geometry.computeVertexNormals();

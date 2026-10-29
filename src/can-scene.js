@@ -17,56 +17,159 @@ function makeShadowTexture(){
 }
 
 function tabGeometry(){
- const s=new THREE.Shape();s.absellipse(0,0,.13,.235,0,Math.PI*2,false,0);
- const h=new THREE.Path();h.absellipse(0,.038,.068,.118,0,Math.PI*2,true,0);s.holes.push(h);
- const g=new THREE.ExtrudeGeometry(s,{depth:.016,bevelEnabled:true,bevelSize:.005,bevelThickness:.004,bevelSegments:2,curveSegments:32});g.center();return g;
+ const s=new THREE.Shape();s.absellipse(0,0,.122,.218,0,Math.PI*2,false,0);
+ const h=new THREE.Path();h.absellipse(0,.032,.062,.106,0,Math.PI*2,true,0);s.holes.push(h);
+ const g=new THREE.ExtrudeGeometry(s,{depth:.014,bevelEnabled:true,bevelSize:.004,bevelThickness:.004,bevelSegments:2,curveSegments:32});g.center();return g;
 }
 
 function addMetal(group){
- const metal=new THREE.MeshPhysicalMaterial({color:0xd9dfdd,metalness:1,roughness:.24,clearcoat:.08,clearcoatRoughness:.22,envMapIntensity:.78});
- const groove=new THREE.MeshStandardMaterial({color:0x48504e,metalness:.92,roughness:.46,envMapIntensity:.6});
+ const metal=new THREE.MeshPhysicalMaterial({
+  color:0xe6ebe9,
+  metalness:1,
+  roughness:.20,
+  clearcoat:.06,
+  clearcoatRoughness:.20,
+  envMapIntensity:.96
+ });
+ const groove=new THREE.MeshStandardMaterial({
+  color:0xaab2af,
+  metalness:.96,
+  roughness:.32,
+  envMapIntensity:.82
+ });
  const geometries=[];
  const add=(g,m=metal)=>{const o=new THREE.Mesh(g,m);o.castShadow=o.receiveShadow=true;group.add(o);geometries.push(g);return o;};
- add(createLidGeometry(192));add(createBottomGeometry(192));
- const torus=(r,t,y,m=metal)=>{const o=add(new THREE.TorusGeometry(r,t,16,128),m);o.rotation.x=Math.PI/2;o.position.y=y;return o;};
- torus(.575,.019,1.452);torus(.525,.007,1.432,groove);torus(.566,.020,-1.438);torus(.51,.008,-1.455,groove);
- const tab=add(tabGeometry());tab.rotation.x=-Math.PI/2;tab.position.set(.01,1.463,.022);tab.scale.setScalar(.95);
- const rivet=add(new THREE.CylinderGeometry(.035,.035,.018,32));rivet.position.set(0,1.455,-.075);
+
+ add(createLidGeometry(192));
+ add(createBottomGeometry(192));
+
+ const torus=(r,t,y,m=metal)=>{
+  const o=add(new THREE.TorusGeometry(r,t,16,128),m);
+  o.rotation.x=Math.PI/2;
+  o.position.y=y;
+  return o;
+ };
+
+ // Realistic double seam: narrower than the body and seated directly on the neck.
+ torus(.516,.015,1.438);
+ torus(.474,.0055,1.419,groove);
+ torus(.566,.018,-1.440);
+ torus(.510,.007,-1.454,groove);
+
+ const tab=add(tabGeometry());
+ tab.rotation.x=-Math.PI/2;
+ tab.position.set(.01,1.430,.018);
+ tab.scale.setScalar(.93);
+
+ const rivet=add(new THREE.CylinderGeometry(.032,.032,.014,32));
+ rivet.position.set(0,1.424,-.070);
+
  return{materials:[metal,groove],geometries};
 }
 
 export async function createCanScene(canvas){
  if(!canvas)throw new Error('Can canvas not found');
+
+ // The scroll story is now product-only: remove lemon/berry/tropical ingredient art.
+ document.querySelector('.fresh-fruit')?.remove();
+
  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance',premultipliedAlpha:true});
  renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.25:1.7));
  renderer.outputColorSpace=THREE.SRGBColorSpace;
  renderer.toneMapping=THREE.NoToneMapping;
- renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ renderer.shadowMap.enabled=true;
+ renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 
- const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(28,innerWidth/innerHeight,.1,40);camera.position.set(0,0,8.2);
- const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),env=pmrem.fromScene(room,.03);
- scene.environment=env.texture;room.dispose();pmrem.dispose();
+ const scene=new THREE.Scene();
+ const camera=new THREE.PerspectiveCamera(28,innerWidth/innerHeight,.1,40);
+ camera.position.set(0,0,8.2);
 
- scene.add(new THREE.HemisphereLight(0xffffff,0x17231f,.45));
- const key=new THREE.DirectionalLight(0xfffaf3,1.15);key.position.set(-4.2,5.1,6.2);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.bias=-.00024;key.shadow.normalBias=.02;scene.add(key);
- const rim=new THREE.DirectionalLight(0xe7f4ff,.55);rim.position.set(5.2,2.2,-4.4);scene.add(rim);
- const fill=new THREE.DirectionalLight(0xffffff,.10);fill.position.set(.7,-.5,5.2);scene.add(fill);
+ const pmrem=new THREE.PMREMGenerator(renderer);
+ const room=new RoomEnvironment();
+ const env=pmrem.fromScene(room,.03);
+ scene.environment=env.texture;
+ room.dispose();
+ pmrem.dispose();
+
+ scene.add(new THREE.HemisphereLight(0xffffff,0x17231f,.58));
+
+ const key=new THREE.DirectionalLight(0xfffaf3,1.32);
+ key.position.set(-4.2,5.1,6.2);
+ key.castShadow=true;
+ key.shadow.mapSize.set(1024,1024);
+ key.shadow.bias=-.00024;
+ key.shadow.normalBias=.02;
+ scene.add(key);
+
+ const rim=new THREE.DirectionalLight(0xe7f4ff,.68);
+ rim.position.set(5.2,2.2,-4.4);
+ scene.add(rim);
+
+ const fill=new THREE.DirectionalLight(0xffffff,.20);
+ fill.position.set(.7,-.4,5.2);
+ scene.add(fill);
+
+ // Dedicated top light prevents the lid from reading as a black floating disk.
+ const topFill=new THREE.DirectionalLight(0xffffff,.42);
+ topFill.position.set(0,6.4,4.4);
+ scene.add(topFill);
 
  const packaging=await preparePackaging();
- const textures=packaging.canvases.map(c=>{const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;t.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;t.needsUpdate=true;return t;});
+ const textures=packaging.canvases.map(c=>{
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.wrapS=THREE.RepeatWrapping;
+  t.wrapT=THREE.ClampToEdgeWrapping;
+  t.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
+  t.minFilter=THREE.LinearMipmapLinearFilter;
+  t.magFilter=THREE.LinearFilter;
+  t.needsUpdate=true;
+  return t;
+ });
 
- const group=new THREE.Group();scene.add(group);
+ const group=new THREE.Group();
+ scene.add(group);
+
  const bodyGeometry=createCanBodyGeometry(192);
- const bodyMaterial=new THREE.MeshPhysicalMaterial({map:textures[0],color:0xffffff,metalness:.035,roughness:.42,clearcoat:.10,clearcoatRoughness:.28,envMapIntensity:.24});
- const body=new THREE.Mesh(bodyGeometry,bodyMaterial);body.castShadow=true;body.receiveShadow=true;group.add(body);
+ const bodyMaterial=new THREE.MeshPhysicalMaterial({
+  map:textures[0],
+  color:0xffffff,
+  metalness:.035,
+  roughness:.42,
+  clearcoat:.10,
+  clearcoatRoughness:.28,
+  envMapIntensity:.24
+ });
+ const body=new THREE.Mesh(bodyGeometry,bodyMaterial);
+ body.castShadow=true;
+ body.receiveShadow=true;
+ group.add(body);
+
  const metal=addMetal(group);
 
- const sTex=makeShadowTexture(),sMat=new THREE.MeshBasicMaterial({map:sTex,transparent:true,depthWrite:false,opacity:.58,toneMapped:false}),shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.85,.82),sMat);shadow.position.z=-.78;scene.add(shadow);
+ const sTex=makeShadowTexture();
+ const sMat=new THREE.MeshBasicMaterial({map:sTex,transparent:true,depthWrite:false,opacity:.58,toneMapped:false});
+ const shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.85,.82),sMat);
+ shadow.position.z=-.78;
+ scene.add(shadow);
 
  let dead=false,current=-1,pose=null,px=0,py=0,sx=0,sy=0;
- const resize=()=>{renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.25:1.7));renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();};
+
+ const resize=()=>{
+  renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.25:1.7));
+  renderer.setSize(innerWidth,innerHeight,false);
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+ };
  resize();
- const setFlavor=i=>{const n=clamp(i,0,textures.length-1)|0;if(n===current)return;current=n;bodyMaterial.map=textures[n];bodyMaterial.needsUpdate=true;};
+
+ const setFlavor=i=>{
+  const n=clamp(i,0,textures.length-1)|0;
+  if(n===current)return;
+  current=n;
+  bodyMaterial.map=textures[n];
+  bodyMaterial.needsUpdate=true;
+ };
  setFlavor(0);
 
  return{
@@ -76,9 +179,15 @@ export async function createCanScene(canvas){
   render(state,time,dt,paused){
    if(dead||state.visibility<.005)return;
    dt=clamp(dt,0,.05);
-   const mobile=innerWidth<760,halfH=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))*camera.position.z,halfW=halfH*camera.aspect;
-   sx=damp(sx,paused?0:px,3.2,dt);sy=damp(sy,paused?0:py,3.2,dt);
+
+   const mobile=innerWidth<760;
+   const halfH=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))*camera.position.z;
+   const halfW=halfH*camera.aspect;
+
+   sx=damp(sx,paused?0:px,3.2,dt);
+   sy=damp(sy,paused?0:py,3.2,dt);
    setFlavor(state.t<.5?state.i:Math.min(state.i+1,2));
+
    const target={
     x:state.x*halfW+sx*.035,
     y:-state.arc*halfH*(mobile?.07:.15)+(paused?0:Math.sin(time*.75)*.018),
@@ -87,12 +196,38 @@ export async function createCanScene(canvas){
     pitch:.035+state.pitch*.12+sy*.018,
     roll:state.tilt*.62
    };
-   if(!pose||paused)pose={...target};else for(const k of Object.keys(target))pose[k]=damp(pose[k],target[k],k==='yaw'?9:7.2,dt);
-   group.position.set(pose.x,pose.y,0);group.scale.setScalar(pose.size);group.rotation.set(pose.pitch,pose.yaw,pose.roll,'YXZ');
-   shadow.position.x=pose.x+.02;shadow.position.y=pose.y-pose.size*1.63;shadow.scale.set(pose.size*(1+state.arc*.24),pose.size*(.96-state.arc*.04),1);sMat.opacity=.58-state.arc*.10;
-   key.position.x=-4.2+state.arc*.4;rim.intensity=.55+state.arc*.08;
+
+   if(!pose||paused)pose={...target};
+   else for(const k of Object.keys(target))pose[k]=damp(pose[k],target[k],k==='yaw'?9:7.2,dt);
+
+   group.position.set(pose.x,pose.y,0);
+   group.scale.setScalar(pose.size);
+   group.rotation.set(pose.pitch,pose.yaw,pose.roll,'YXZ');
+
+   shadow.position.x=pose.x+.02;
+   shadow.position.y=pose.y-pose.size*1.63;
+   shadow.scale.set(pose.size*(1+state.arc*.24),pose.size*(.96-state.arc*.04),1);
+   sMat.opacity=.58-state.arc*.10;
+
+   key.position.x=-4.2+state.arc*.4;
+   rim.intensity=.68+state.arc*.08;
+   topFill.intensity=.42+state.arc*.05;
+
    renderer.render(scene,camera);
   },
-  dispose(){if(dead)return;dead=true;bodyGeometry.dispose();bodyMaterial.dispose();metal.geometries.forEach(g=>g.dispose());metal.materials.forEach(m=>m.dispose());shadow.geometry.dispose();sMat.dispose();sTex.dispose();textures.forEach(t=>t.dispose());env.dispose();renderer.dispose();}
+  dispose(){
+   if(dead)return;
+   dead=true;
+   bodyGeometry.dispose();
+   bodyMaterial.dispose();
+   metal.geometries.forEach(g=>g.dispose());
+   metal.materials.forEach(m=>m.dispose());
+   shadow.geometry.dispose();
+   sMat.dispose();
+   sTex.dispose();
+   textures.forEach(t=>t.dispose());
+   env.dispose();
+   renderer.dispose();
+  }
  };
 }
