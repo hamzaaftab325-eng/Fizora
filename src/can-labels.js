@@ -2,7 +2,7 @@ import {CAN_CIRCUMFERENCE,CAN_BODY_HEIGHT} from './can-geometry';
 import {packaging,nutritionRows} from './packaging';
 
 const TAU=Math.PI*2;
-export function drawCanLabel(canvas,image,index){
+export function drawCanLabel(canvas,image,index,approvedLabel){
  const p=packaging[index],W=3072,H=Math.round(W*CAN_BODY_HEIGHT/CAN_CIRCUMFERENCE);
  canvas.width=W;canvas.height=H;
  const c=canvas.getContext('2d');
@@ -87,6 +87,23 @@ export function drawCanLabel(canvas,image,index){
   text('FIND YOUR FIZZ.',0,0,91,800,p.ink,'center','Barlow Condensed');
   text(p.notes,0,54,25,600);c.restore();
  }
+ // Front fidelity pass: use the approved campaign artwork itself instead of recreating its
+ // typography, fruit and color treatment. The feathered edges blend into the generated side/back wrap.
+ if(approvedLabel){
+  const front=document.createElement('canvas');front.width=W;front.height=H;
+  const f=front.getContext('2d');f.imageSmoothingEnabled=true;f.imageSmoothingQuality='high';
+  const fw=W*.52,fx=(W-fw)/2;
+  f.drawImage(approvedLabel,fx,0,fw,H);
+  f.globalCompositeOperation='destination-in';
+  const mask=f.createLinearGradient(fx,0,fx+fw,0);
+  mask.addColorStop(0,'rgba(255,255,255,0)');
+  mask.addColorStop(.035,'rgba(255,255,255,1)');
+  mask.addColorStop(.965,'rgba(255,255,255,1)');
+  mask.addColorStop(1,'rgba(255,255,255,0)');
+  f.fillStyle=mask;f.fillRect(fx,0,fw,H);
+  f.globalCompositeOperation='source-over';
+  c.drawImage(front,0,0);
+ }
  return canvas;
 }
 
@@ -128,11 +145,12 @@ function packshot(label,back=false){
 }
 export async function preparePackaging(){
  const names=['citrus','berry','tropical'];
- const [images]=await Promise.all([
+ const [images,approvedLabels]=await Promise.all([
   Promise.all(names.map(name=>loadImage(`/images/${name}-fruit.webp`))),
+  Promise.all(names.map(name=>loadImage(`/images/${name}-label.webp`))),
   Promise.all([document.fonts.load('italic 900 100px "Barlow Condensed"'),document.fonts.load('800 50px "Barlow Condensed"'),document.fonts.load('700 30px "DM Sans"'),document.fonts.load('500 24px "DM Sans"')])
  ]);
- const canvases=images.map((image,index)=>drawCanLabel(document.createElement('canvas'),image,index));
+ const canvases=images.map((image,index)=>drawCanLabel(document.createElement('canvas'),image,index,approvedLabels[index]));
  const previews=canvases.map(label=>({front:cropLabel(label),back:cropLabel(label,true),frontCan:packshot(label),backCan:packshot(label,true)}));
  return {canvases,previews};
 }
