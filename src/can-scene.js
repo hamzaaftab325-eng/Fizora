@@ -77,9 +77,9 @@ function addCan(scene,textures,glass){
  const darkMetal=new THREE.MeshStandardMaterial({color:0x252d2b,metalness:.90,roughness:.36,envMapIntensity:1.12});
 
  const panel=new THREE.MeshPhysicalMaterial({
-  map:textures[0],metalness:.055,roughness:.305,roughnessMap:surfaces.roughTexture,
-  clearcoat:.96,clearcoatRoughness:.105,envMapIntensity:1.20,ior:1.49,specularIntensity:.93,
-  bumpMap:surfaces.bumpTexture,bumpScale:.0045,anisotropy:.10
+  map:textures[0],metalness:.018,roughness:.24,roughnessMap:surfaces.roughTexture,
+  clearcoat:.82,clearcoatRoughness:.16,envMapIntensity:.88,ior:1.46,specularIntensity:.74,
+  bumpMap:surfaces.bumpTexture,bumpScale:.0024,anisotropy:.06
  });
  const blend={map:{value:textures[1]},amount:{value:0}};
  panel.onBeforeCompile=shader=>{
@@ -115,8 +115,8 @@ function addCan(scene,textures,glass){
  const body=new THREE.Mesh(bodyGeometry,panel);body.castShadow=body.receiveShadow=true;group.add(body);
 
  const wetMaterial=new THREE.MeshPhysicalMaterial({
-  color:0xffffff,metalness:0,roughness:.026,clearcoat:1,clearcoatRoughness:.008,
-  transparent:true,opacity:.115,alphaMap:surfaces.wetTexture,depthWrite:false,envMapIntensity:1.72,ior:1.333
+  color:0xffffff,metalness:0,roughness:.04,clearcoat:1,clearcoatRoughness:.02,
+  transparent:true,opacity:.05,alphaMap:surfaces.wetTexture,depthWrite:false,envMapIntensity:1.15,ior:1.333
  });
  const wetShell=new THREE.Mesh(bodyGeometry,wetMaterial);wetShell.scale.set(1.0017,1,1.0017);wetShell.renderOrder=1;group.add(wetShell);
 
@@ -146,7 +146,7 @@ function addCan(scene,textures,glass){
  const tinyDropMat=glass.material({distortion:.0038,roughness:.018,frost:.001,absorption:.006,dispersion:.002});
  const bigDropMat=glass.material({distortion:.0068,roughness:.014,frost:.001,absorption:.010,dispersion:.003});
  const random=makeRng(83),dummy=new THREE.Object3D();
- const tinyCount=760;
+ const tinyCount=420;
  const tiny=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,7),tinyDropMat,tinyCount);
  for(let i=0;i<tinyCount;i++){
   const cluster=Math.floor(random()*13),clusterTheta=cluster/13*Math.PI*2+(random()-.5)*.34;
@@ -157,7 +157,7 @@ function addCan(scene,textures,glass){
  }
  tiny.instanceMatrix.needsUpdate=true;tiny.renderOrder=3;group.add(tiny);glass.exclude(tiny);
 
- const mediumCount=168;
+ const mediumCount=92;
  const medium=new THREE.InstancedMesh(new THREE.SphereGeometry(1,16,10),bigDropMat,mediumCount);
  for(let i=0;i<mediumCount;i++){
   const theta=random()*Math.PI*2,y=(random()-.5)*2.05;
@@ -167,7 +167,7 @@ function addCan(scene,textures,glass){
  }
  medium.instanceMatrix.needsUpdate=true;medium.renderOrder=4;group.add(medium);glass.exclude(medium);
 
- const runCount=18,runGeometry=new THREE.SphereGeometry(1,16,10),runs=new THREE.InstancedMesh(runGeometry,bigDropMat,runCount);
+ const runCount=8,runGeometry=new THREE.SphereGeometry(1,16,10),runs=new THREE.InstancedMesh(runGeometry,bigDropMat,runCount);
  const runSeeds=Array.from({length:runCount},()=>({
   theta:random()*Math.PI*2,start:.82-random()*1.52,r:.010+random()*.013,
   stretch:2.5+random()*3.0,speed:.0035+random()*.0065,phase:random(),distance:.16+random()*.26
@@ -193,18 +193,18 @@ export async function createCanScene(canvas,assets){
  const artwork=assets??await preparePackaging();
  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance',premultipliedAlpha:true});
  renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.5:2));
- renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.99;
+ renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.84;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(28.5,innerWidth/innerHeight,.1,50);camera.position.set(0,0,8);
  const environment=createStudioEnvironment(renderer);scene.environment=environment.texture;
 
- scene.add(new THREE.HemisphereLight(0xf7fbf8,0x1d3329,.24));
- const key=new THREE.DirectionalLight(0xfff8ee,2.18);key.position.set(-3.9,5.5,5.8);key.castShadow=true;
+ scene.add(new THREE.HemisphereLight(0xf7fbf8,0x1d3329,.12));
+ const key=new THREE.DirectionalLight(0xfff8ee,1.58);key.position.set(-3.6,5.2,5.4);key.castShadow=true;
  key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-4;key.shadow.camera.right=4;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;key.shadow.bias=-.00025;key.shadow.normalBias=.018;scene.add(key);
- const edge=new THREE.DirectionalLight(0xeaf8ff,2.48);edge.position.set(5.7,2.3,-3.3);scene.add(edge);
- const fill=new THREE.DirectionalLight(0xffffff,.34);fill.position.set(.7,-.15,5.6);scene.add(fill);
- const topLight=new THREE.PointLight(0xfffbf2,.42,14,2);topLight.position.set(-.8,5.2,2.8);scene.add(topLight);
- const floorBounce=new THREE.PointLight(0xdff5e8,.20,11,2);floorBounce.position.set(.7,-4.6,2.2);scene.add(floorBounce);
+ const edge=new THREE.DirectionalLight(0xeaf8ff,1.22);edge.position.set(5.4,2.2,-3.1);scene.add(edge);
+ const fill=new THREE.DirectionalLight(0xffffff,.16);fill.position.set(.6,-.1,5.2);scene.add(fill);
+ const topLight=new THREE.PointLight(0xfffbf2,.16,12,2);topLight.position.set(-.7,4.6,2.5);scene.add(topLight);
+ const floorBounce=new THREE.PointLight(0xdff5e8,.09,10,2);floorBounce.position.set(.6,-4.2,1.8);scene.add(floorBounce);
 
  const textures=artwork.canvases.map(label=>{
   const t=new THREE.CanvasTexture(label);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;
@@ -286,12 +286,12 @@ export async function createCanScene(canvas,assets){
    if(lastI!==s.i){panel.map=textures[s.i];blend.map.value=textures[s.i+1];lastI=s.i;}
    blend.amount.value=cinematicEase(clamp((s.t-.34)/.32));
 
-   key.position.x=-3.9+(paused?0:Math.sin(sceneTime*.18)*.38+s.arc*.92);key.position.y=5.5+(paused?0:Math.sin(sceneTime*.13)*.12);
-   edge.position.x=5.7-(paused?0:s.arc*1.25);
-   rimTint.copy(rimColors[s.i]).lerp(rimColors[s.i+1],s.t);edge.color.copy(rimTint);edge.intensity=2.48+(paused?0:s.arc*.30);
+   key.position.x=-3.6+(paused?0:Math.sin(sceneTime*.18)*.28+s.arc*.62);key.position.y=5.2+(paused?0:Math.sin(sceneTime*.13)*.08);
+   edge.position.x=5.4-(paused?0:s.arc*.86);
+   rimTint.copy(rimColors[s.i]).lerp(rimColors[s.i+1],s.t);edge.color.copy(rimTint);edge.intensity=1.22+(paused?0:s.arc*.12);
    shadow.position.x=pose.x+.05;shadow.position.y=pose.y-pose.size*1.69;
    shadow.scale.set(pose.size*(1+s.push*.44),pose.size*(1-s.push*.14),1);
-   shadow.material.uniforms.alpha.value=(s.i===1&&s.t<.5?.088:.155)*(1-s.arc*.20);
+   shadow.material.uniforms.alpha.value=(s.i===1&&s.t<.5?.11:.21)*(1-s.arc*.12);
    shadow.material.uniforms.stretch.value=1+s.arc*.22;shadow.material.uniforms.lean.value=pose.roll*.55;
 
    condensation.update(sceneTime);

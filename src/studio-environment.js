@@ -12,12 +12,12 @@ export function createStudioEnvironment(renderer){
   const u=x/(width-1),v=y/(height-1);
 
   // Real studio cards: one broad soft key, a thin edge strip and a weaker fill card.
-  const key=rect(u,v,.155,.48,.065,.315,7)*5.9;
-  const edge=rect(u,v,.695,.49,.020,.355,8)*8.2;
-  const fill=rect(u,v,.935,.50,.105,.245,6)*1.62;
-  const frontCard=rect(u,v,.505,.59,.19,.055,5)*.34;
-  const ceiling=gauss(v,.095,.125)*.83;
-  const floorBounce=gauss(v,.865,.105)*.21;
+  const key=rect(u,v,.155,.48,.065,.315,7)*4.6;
+  const edge=rect(u,v,.695,.49,.020,.355,8)*5.8;
+  const fill=rect(u,v,.935,.50,.105,.245,6)*1.05;
+  const frontCard=rect(u,v,.505,.59,.19,.055,5)*.22;
+  const ceiling=gauss(v,.095,.125)*.58;
+  const floorBounce=gauss(v,.865,.105)*.12;
   const horizon=gauss(v,.635,.045)*.16;
 
   // Dark cards are intentionally strong. Uniformly bright HDRIs make cylindrical metal look plastic.
