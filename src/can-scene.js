@@ -1,10 +1,98 @@
 import * as THREE from 'three';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {preparePackaging} from './can-labels';
-import {createBottomGeometry,createCanBodyGeometry,createLidGeometry,CAN_RADIUS} from './can-geometry';
-const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,damp=(v,t,r,dt)=>lerp(v,t,1-Math.exp(-r*Math.max(0,dt))),MODEL_HEIGHT=3.02;
-function shadowTexture(){const c=document.createElement('canvas');c.width=1024;c.height=256;const x=c.getContext('2d'),g=x.createRadialGradient(512,128,20,512,128,460);g.addColorStop(0,'rgba(4,20,16,.34)');g.addColorStop(.42,'rgba(4,20,16,.16)');g.addColorStop(1,'rgba(4,20,16,0)');x.fillStyle=g;x.fillRect(0,0,c.width,c.height);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
-function tabGeometry(){const s=new THREE.Shape();s.absellipse(0,0,.13,.235,0,Math.PI*2,false,0);const h=new THREE.Path();h.absellipse(0,.038,.068,.118,0,Math.PI*2,true,0);s.holes.push(h);const g=new THREE.ExtrudeGeometry(s,{depth:.016,bevelEnabled:true,bevelSize:.005,bevelThickness:.004,bevelSegments:2,curveSegments:32});g.center();return g}
-function addMetal(group){const metal=new THREE.MeshPhysicalMaterial({color:0xd7dddb,metalness:1,roughness:.22,clearcoat:.12,clearcoatRoughness:.18,envMapIntensity:.92}),groove=new THREE.MeshStandardMaterial({color:0x49514f,metalness:.95,roughness:.42}),geometries=[];const add=(g,m=metal)=>{const o=new THREE.Mesh(g,m);o.castShadow=o.receiveShadow=true;group.add(o);geometries.push(g);return o};add(createLidGeometry(192));add(createBottomGeometry(192));const torus=(r,t,y,m=metal)=>{const o=add(new THREE.TorusGeometry(r,t,16,128),m);o.rotation.x=Math.PI/2;o.position.y=y};torus(.575,.019,1.452);torus(.525,.007,1.432,groove);torus(.566,.020,-1.438);torus(.51,.008,-1.455,groove);const tab=add(tabGeometry());tab.rotation.x=-Math.PI/2;tab.position.set(.01,1.463,.022);tab.scale.setScalar(.95);const rivet=add(new THREE.CylinderGeometry(.035,.035,.018,32));rivet.position.set(0,1.455,-.075);return{materials:[metal,groove],geometries}}
-function addCondensation(group){const tinyMat=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.045,transparent:true,opacity:.17,transmission:.23,clearcoat:1,clearcoatRoughness:.04,depthWrite:false,ior:1.333,envMapIntensity:.85}),medMat=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.035,transparent:true,opacity:.21,transmission:.30,clearcoat:1,clearcoatRoughness:.03,depthWrite:false,ior:1.333,envMapIntensity:.95}),geometry=new THREE.SphereGeometry(1,10,8);let seed=721;const rnd=()=>{seed=seed*16807%2147483647;return(seed-1)/2147483646},make=(count,mat,minR,maxR,sm,sx,bias)=>{const mesh=new THREE.InstancedMesh(geometry,mat,count),d=new THREE.Object3D();for(let i=0;i<count;i++){const a=rnd()*Math.PI*2,t=Math.pow(rnd(),1.35),y=clamp((1-t)*1.04+(rnd()-.5)*2.08-bias,-1.03,1.05),r=minR+Math.pow(rnd(),2.4)*(maxR-minR),st=sm+rnd()*(sx-sm);d.position.set(Math.sin(a)*(CAN_RADIUS+.0065),y,Math.cos(a)*(CAN_RADIUS+.0065));d.scale.set(r,r*st,r*.40);d.rotation.y=a;d.updateMatrix();mesh.setMatrixAt(i,d.matrix)}mesh.instanceMatrix.needsUpdate=true;mesh.renderOrder=4;group.add(mesh);return mesh};make(120,tinyMat,.004,.014,.95,1.35,.24);make(40,medMat,.014,.033,.95,1.55,.14);const runs=new THREE.InstancedMesh(geometry,medMat,5),d=new THREE.Object3D();for(let i=0;i<5;i++){const a=i/5*Math.PI*2+rnd()*.22,y=.30-rnd()*1.35,r=.022+rnd()*.017;d.position.set(Math.sin(a)*(CAN_RADIUS+.007),y,Math.cos(a)*(CAN_RADIUS+.007));d.scale.set(r,r*2.8,r*.40);d.rotation.y=a;d.updateMatrix();runs.setMatrixAt(i,d.matrix)}runs.instanceMatrix.needsUpdate=true;runs.renderOrder=4;group.add(runs);return{geometry,materials:[tinyMat,medMat]}}
-export async function createCanScene(canvas){if(!canvas)throw new Error('Can canvas not found');const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance',premultipliedAlpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.3:1.8));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.9;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(28,innerWidth/innerHeight,.1,40);camera.position.set(0,0,8.2);const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),env=pmrem.fromScene(room,.035);scene.environment=env.texture;room.dispose();pmrem.dispose();scene.add(new THREE.HemisphereLight(0xffffff,0x17231f,.8));const key=new THREE.DirectionalLight(0xfff8ef,1.9);key.position.set(-4.1,5,6.1);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.bias=-.00024;key.shadow.normalBias=.02;scene.add(key);const rim=new THREE.DirectionalLight(0xe6f3ff,1.1);rim.position.set(5.3,2.2,-4.5);scene.add(rim);const fill=new THREE.DirectionalLight(0xffffff,.25);fill.position.set(.8,-.6,5.4);scene.add(fill);const packaging=await preparePackaging(),textures=packaging.canvases.map(c=>{const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;t.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;t.needsUpdate=true;return t}),group=new THREE.Group();scene.add(group);const bodyGeometry=createCanBodyGeometry(192),bodyMaterial=new THREE.MeshPhysicalMaterial({map:textures[0],color:0xffffff,metalness:.12,roughness:.34,clearcoat:.28,clearcoatRoughness:.22,envMapIntensity:.55}),body=new THREE.Mesh(bodyGeometry,bodyMaterial);body.castShadow=body.receiveShadow=true;group.add(body);const glossGeometry=createCanBodyGeometry(192),glossMaterial=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.18,clearcoat:1,clearcoatRoughness:.15,transparent:true,opacity:.045,depthWrite:false,envMapIntensity:.55}),gloss=new THREE.Mesh(glossGeometry,glossMaterial);gloss.scale.setScalar(1.006);gloss.renderOrder=2;group.add(gloss);const metal=addMetal(group),cond=addCondensation(group),sTex=shadowTexture(),sMat=new THREE.MeshBasicMaterial({map:sTex,transparent:true,depthWrite:false,opacity:.62,toneMapped:false}),shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.85,.82),sMat);shadow.position.z=-.78;scene.add(shadow);let dead=false,current=-1,pose=null,px=0,py=0,sx=0,sy=0;const resize=()=>{renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.3:1.8));renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()};resize();const setFlavor=i=>{const n=clamp(i,0,textures.length-1)|0;if(n===current)return;current=n;bodyMaterial.map=textures[n];bodyMaterial.needsUpdate=true};setFlavor(0);return{resize,pointer(x,y){px=x;py=y},impulse(){},render(state,time,dt,paused){if(dead||state.visibility<.005)return;dt=clamp(dt,0,.05);const mobile=innerWidth<760,halfH=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))*camera.position.z,halfW=halfH*camera.aspect;sx=damp(sx,paused?0:px,3.4,dt);sy=damp(sy,paused?0:py,3.4,dt);setFlavor(state.t<.5?state.i:Math.min(state.i+1,2));const target={x:state.x*halfW+sx*.05,y:-state.arc*halfH*(mobile?.075:.16)+(paused?0:Math.sin(time*.8)*.02),size:halfH*2*(mobile?.42:.65)/MODEL_HEIGHT*(1+state.arc*(mobile?.03:.06)),yaw:state.rotation+sx*.04,pitch:.04+state.pitch*.14+sy*.022,roll:state.tilt*.68};if(!pose||paused)pose={...target};else for(const k of Object.keys(target))pose[k]=damp(pose[k],target[k],k==='yaw'?9.5:7.5,dt);group.position.set(pose.x,pose.y,0);group.scale.setScalar(pose.size);group.rotation.set(pose.pitch,pose.yaw,pose.roll,'YXZ');shadow.position.x=pose.x+.02;shadow.position.y=pose.y-pose.size*1.63;shadow.scale.set(pose.size*(1+state.arc*.28),pose.size*(.96-state.arc*.05),1);sMat.opacity=.62-state.arc*.12;key.position.x=-4.1+state.arc*.65;rim.intensity=1.08+state.arc*.14;renderer.render(scene,camera)},dispose(){if(dead)return;dead=true;bodyGeometry.dispose();bodyMaterial.dispose();glossGeometry.dispose();glossMaterial.dispose();cond.geometry.dispose();cond.materials.forEach(m=>m.dispose());metal.geometries.forEach(g=>g.dispose());metal.materials.forEach(m=>m.dispose());shadow.geometry.dispose();sMat.dispose();sTex.dispose();textures.forEach(t=>t.dispose());env.dispose();renderer.dispose()}}}
+import {createBottomGeometry,createCanBodyGeometry,createLidGeometry} from './can-geometry';
+
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const damp=(v,t,r,dt)=>lerp(v,t,1-Math.exp(-r*Math.max(0,dt)));
+const MODEL_HEIGHT=3.02;
+
+function makeShadowTexture(){
+ const c=document.createElement('canvas');c.width=1024;c.height=256;
+ const x=c.getContext('2d'),g=x.createRadialGradient(512,128,20,512,128,460);
+ g.addColorStop(0,'rgba(4,20,16,.30)');g.addColorStop(.42,'rgba(4,20,16,.12)');g.addColorStop(1,'rgba(4,20,16,0)');
+ x.fillStyle=g;x.fillRect(0,0,c.width,c.height);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+
+function tabGeometry(){
+ const s=new THREE.Shape();s.absellipse(0,0,.13,.235,0,Math.PI*2,false,0);
+ const h=new THREE.Path();h.absellipse(0,.038,.068,.118,0,Math.PI*2,true,0);s.holes.push(h);
+ const g=new THREE.ExtrudeGeometry(s,{depth:.016,bevelEnabled:true,bevelSize:.005,bevelThickness:.004,bevelSegments:2,curveSegments:32});g.center();return g;
+}
+
+function addMetal(group){
+ const metal=new THREE.MeshPhysicalMaterial({color:0xd9dfdd,metalness:1,roughness:.24,clearcoat:.08,clearcoatRoughness:.22,envMapIntensity:.78});
+ const groove=new THREE.MeshStandardMaterial({color:0x48504e,metalness:.92,roughness:.46,envMapIntensity:.6});
+ const geometries=[];
+ const add=(g,m=metal)=>{const o=new THREE.Mesh(g,m);o.castShadow=o.receiveShadow=true;group.add(o);geometries.push(g);return o;};
+ add(createLidGeometry(192));add(createBottomGeometry(192));
+ const torus=(r,t,y,m=metal)=>{const o=add(new THREE.TorusGeometry(r,t,16,128),m);o.rotation.x=Math.PI/2;o.position.y=y;return o;};
+ torus(.575,.019,1.452);torus(.525,.007,1.432,groove);torus(.566,.020,-1.438);torus(.51,.008,-1.455,groove);
+ const tab=add(tabGeometry());tab.rotation.x=-Math.PI/2;tab.position.set(.01,1.463,.022);tab.scale.setScalar(.95);
+ const rivet=add(new THREE.CylinderGeometry(.035,.035,.018,32));rivet.position.set(0,1.455,-.075);
+ return{materials:[metal,groove],geometries};
+}
+
+export async function createCanScene(canvas){
+ if(!canvas)throw new Error('Can canvas not found');
+ const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance',premultipliedAlpha:true});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.25:1.7));
+ renderer.outputColorSpace=THREE.SRGBColorSpace;
+ renderer.toneMapping=THREE.NoToneMapping;
+ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+
+ const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(28,innerWidth/innerHeight,.1,40);camera.position.set(0,0,8.2);
+ const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),env=pmrem.fromScene(room,.03);
+ scene.environment=env.texture;room.dispose();pmrem.dispose();
+
+ scene.add(new THREE.HemisphereLight(0xffffff,0x17231f,.45));
+ const key=new THREE.DirectionalLight(0xfffaf3,1.15);key.position.set(-4.2,5.1,6.2);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.bias=-.00024;key.shadow.normalBias=.02;scene.add(key);
+ const rim=new THREE.DirectionalLight(0xe7f4ff,.55);rim.position.set(5.2,2.2,-4.4);scene.add(rim);
+ const fill=new THREE.DirectionalLight(0xffffff,.10);fill.position.set(.7,-.5,5.2);scene.add(fill);
+
+ const packaging=await preparePackaging();
+ const textures=packaging.canvases.map(c=>{const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;t.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;t.needsUpdate=true;return t;});
+
+ const group=new THREE.Group();scene.add(group);
+ const bodyGeometry=createCanBodyGeometry(192);
+ const bodyMaterial=new THREE.MeshPhysicalMaterial({map:textures[0],color:0xffffff,metalness:.035,roughness:.42,clearcoat:.10,clearcoatRoughness:.28,envMapIntensity:.24});
+ const body=new THREE.Mesh(bodyGeometry,bodyMaterial);body.castShadow=true;body.receiveShadow=true;group.add(body);
+ const metal=addMetal(group);
+
+ const sTex=makeShadowTexture(),sMat=new THREE.MeshBasicMaterial({map:sTex,transparent:true,depthWrite:false,opacity:.58,toneMapped:false}),shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.85,.82),sMat);shadow.position.z=-.78;scene.add(shadow);
+
+ let dead=false,current=-1,pose=null,px=0,py=0,sx=0,sy=0;
+ const resize=()=>{renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<760?1.25:1.7));renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();};
+ resize();
+ const setFlavor=i=>{const n=clamp(i,0,textures.length-1)|0;if(n===current)return;current=n;bodyMaterial.map=textures[n];bodyMaterial.needsUpdate=true;};
+ setFlavor(0);
+
+ return{
+  resize,
+  pointer(x,y){px=x;py=y;},
+  impulse(){},
+  render(state,time,dt,paused){
+   if(dead||state.visibility<.005)return;
+   dt=clamp(dt,0,.05);
+   const mobile=innerWidth<760,halfH=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))*camera.position.z,halfW=halfH*camera.aspect;
+   sx=damp(sx,paused?0:px,3.2,dt);sy=damp(sy,paused?0:py,3.2,dt);
+   setFlavor(state.t<.5?state.i:Math.min(state.i+1,2));
+   const target={
+    x:state.x*halfW+sx*.035,
+    y:-state.arc*halfH*(mobile?.07:.15)+(paused?0:Math.sin(time*.75)*.018),
+    size:halfH*2*(mobile?.42:.64)/MODEL_HEIGHT*(1+state.arc*(mobile?.025:.05)),
+    yaw:state.rotation+sx*.03,
+    pitch:.035+state.pitch*.12+sy*.018,
+    roll:state.tilt*.62
+   };
+   if(!pose||paused)pose={...target};else for(const k of Object.keys(target))pose[k]=damp(pose[k],target[k],k==='yaw'?9:7.2,dt);
+   group.position.set(pose.x,pose.y,0);group.scale.setScalar(pose.size);group.rotation.set(pose.pitch,pose.yaw,pose.roll,'YXZ');
+   shadow.position.x=pose.x+.02;shadow.position.y=pose.y-pose.size*1.63;shadow.scale.set(pose.size*(1+state.arc*.24),pose.size*(.96-state.arc*.04),1);sMat.opacity=.58-state.arc*.10;
+   key.position.x=-4.2+state.arc*.4;rim.intensity=.55+state.arc*.08;
+   renderer.render(scene,camera);
+  },
+  dispose(){if(dead)return;dead=true;bodyGeometry.dispose();bodyMaterial.dispose();metal.geometries.forEach(g=>g.dispose());metal.materials.forEach(m=>m.dispose());shadow.geometry.dispose();sMat.dispose();sTex.dispose();textures.forEach(t=>t.dispose());env.dispose();renderer.dispose();}
+ };
+}
