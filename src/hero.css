@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#fizora-hero-root {
+  position: relative;
+  z-index: 80;
+}
+
+#fizora-hero-root img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
