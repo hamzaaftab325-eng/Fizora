@@ -192,7 +192,8 @@ export async function createCanScene(canvas){
     x:state.x*halfW+sx*.035,
     y:-state.arc*halfH*(mobile?.07:.15)+(paused?0:Math.sin(time*.75)*.018),
     size:halfH*2*(mobile?.42:.64)/MODEL_HEIGHT*(1+state.arc*(mobile?.025:.05)),
-    yaw:state.rotation+sx*.03,
+    // Packaging texture seam is opposite the camera at yaw 0; offset by PI so every section starts front-facing.
+    yaw:Math.PI+state.rotation+sx*.03,
     pitch:.035+state.pitch*.12+sy*.018,
     roll:state.tilt*.62
    };
