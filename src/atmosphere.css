@@ -7,7 +7,7 @@
 .liquid-shade-citrus{background:linear-gradient(90deg,#f2fba744,transparent 62%)}
 .liquid-shade-berry{background:linear-gradient(270deg,#23054566,transparent 75%)}
 .liquid-shade-tropical{background:linear-gradient(90deg,#ffcb913b,transparent 65%)}
-.liquid-atmosphere{position:fixed;inset:0;width:100%;height:100%;z-index:11;pointer-events:none;contain:strict}
+.liquid-atmosphere{position:fixed;inset:0;width:100%;height:100%;z-index:11;pointer-events:none;contain:strict;opacity:.42}
 .liquid-hint{position:absolute;bottom:37px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;white-space:nowrap;font-size:9px;letter-spacing:.06em;opacity:.65;pointer-events:none;transition:opacity .7s}
 .liquid-hint i{width:13px;height:13px;border:1px solid currentColor;border-radius:50%;position:relative}
 .liquid-hint i:after{content:'';position:absolute;inset:3px;border:1px solid currentColor;border-radius:50%}

@@ -1,9 +1,15 @@
-/* Campaign art surrounds the live product; it never replaces the rotating mesh. */
-.splash-stage{position:absolute;left:71.5%;top:50%;height:min(92vh,1000px);aspect-ratio:1;transform:translate(-50%,-50%) rotate(var(--splash-roll,0rad)) scale(var(--splash-push,1));will-change:transform;pointer-events:none}
-.can-stage>canvas{position:absolute;inset:0}
-.fresh-fruit{position:absolute;width:48%;height:38%;right:-8%;bottom:-3%;transform:rotate(-12deg)}
-.fresh-fruit img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .65s;filter:drop-shadow(0 16px 10px #072d3533)}
-.backdrop,.liquid-surface{filter:saturate(1.28) contrast(1.1)}
+/* Polished photo-style campaign art using the approved can packshots. */
+.can-stage{isolation:isolate}
+.hero-spotlight,.hero-mist{position:absolute;pointer-events:none}
+.hero-spotlight{left:58%;top:50%;width:min(46vw,640px);aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at center,rgba(255,255,255,.32) 0%,rgba(255,255,255,.18) 24%,rgba(255,255,255,.08) 42%,rgba(255,255,255,0) 72%);filter:blur(12px);opacity:.72}
+.hero-mist{left:58%;top:50%;width:min(58vw,780px);height:min(70vh,760px);transform:translate(-50%,-50%);background:radial-gradient(ellipse at 50% 55%,rgba(255,255,255,.08),rgba(255,255,255,.02) 48%,transparent 72%);opacity:.8}
+.fresh-fruit{position:absolute;width:min(34vw,440px);height:min(31vw,390px);right:4%;bottom:3.5%;transform:none;z-index:2}
+.fresh-fruit img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .55s;filter:drop-shadow(0 18px 18px rgba(4,28,21,.22))}
+.photo-hero-can{left:58%!important;top:49%!important;height:min(66vh,680px)!important;max-height:680px;z-index:3;aspect-ratio:auto!important}
+.photo-hero-can img{width:auto;height:100%;object-fit:contain;filter:drop-shadow(0 28px 30px rgba(0,32,19,.20)) drop-shadow(-3px 5px 8px rgba(255,255,255,.15)) saturate(1.04) contrast(1.025)}
+.can-stage.is-photo-hero canvas{display:none}
+.can-stage.is-photo-hero .can-fallback{opacity:1}
+.backdrop,.liquid-surface{filter:saturate(1.14) contrast(1.045)}
 .liquid-shade-citrus{background:linear-gradient(100deg,#f5f64170 5%,#e6e91418 45%,#00391888 100%)}
 .liquid-shade-berry{background:linear-gradient(90deg,#24073780,#79169b08 50%,#39084d70)}
 .liquid-shade-tropical{background:linear-gradient(100deg,#ffb31b50,#ff931500 45%,#762c0780)}
@@ -25,11 +31,13 @@
 .flavor-detail{padding:30px;border-radius:24px;background:#e8ebdc;border:0}
 .footer{background:radial-gradient(ellipse at 80% 100%,#286936,transparent 60%),#062d20}
 .footer-brand{color:#e4ef71}
-.can-fallback img{filter:drop-shadow(10px 22px 17px #00281744)}
+.can-fallback img{filter:drop-shadow(0 22px 28px rgba(0,32,19,.22))}
 @media(min-width:761px){.can-inspector{bottom:8%}.flavor-section{padding-top:135px}.display{font-size:clamp(98px,10.8vw,185px)}.flavor-berry .display{font-size:clamp(80px,9vw,155px)}.flavor-tropical .display{font-size:clamp(80px,8.5vw,148px)}}
 @media(max-width:760px){
- .splash-stage{height:min(56svh,500px);width:auto;max-width:125vw}
- .fresh-fruit{width:42%;right:0;bottom:-2%}
+ .hero-spotlight{left:50%;top:37%;width:min(95vw,460px)}
+ .hero-mist{left:50%;top:38%;width:min(118vw,560px);height:min(76svh,620px)}
+ .photo-hero-can{left:50%!important;top:40%!important;height:min(44svh,390px)!important}
+ .fresh-fruit{width:min(50vw,270px);height:min(43vw,225px);right:2%;bottom:18%}
  .display{font-style:italic}
  .flavor-info>p{font-size:12px}
  .flavor-info .text-link{padding:12px 18px;margin-top:14px}
@@ -40,5 +48,7 @@
  .flavor-detail>div{min-width:180px}
  .flavor-detail .pill-button{margin-left:0}
 }
-@media(min-width:761px){.theme-berry .fresh-fruit{right:auto;left:-8%}.splash-stage{height:min(84vh,940px)}}
+@media(min-width:761px){.theme-berry .fresh-fruit,.theme-tropical .fresh-fruit{right:6%;left:auto}}
 @media(prefers-reduced-motion:reduce){.fresh-fruit img{transition:none}}
+
+.label-loading{grid-column:1/-1;padding:80px 0;text-align:center;font-size:12px;font-weight:700;letter-spacing:.08em;opacity:.65}
