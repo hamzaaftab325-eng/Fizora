@@ -1,15 +1,21 @@
-/* Current campaign layer: one WebGL can, photographic flavor backgrounds, no legacy packshot/fruit overlays. */
+/* Polished photo-style campaign art using the approved can packshots. */
 .can-stage{isolation:isolate}
-.hero-spotlight,.hero-mist{position:absolute;pointer-events:none;z-index:0}
-.hero-spotlight{left:58%;top:50%;width:min(46vw,640px);aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at center,rgba(255,255,255,.30) 0%,rgba(255,255,255,.16) 25%,rgba(255,255,255,.06) 44%,rgba(255,255,255,0) 72%);filter:blur(12px);opacity:.68}
-.hero-mist{left:58%;top:50%;width:min(58vw,780px);height:min(70vh,760px);transform:translate(-50%,-50%);background:radial-gradient(ellipse at 50% 55%,rgba(255,255,255,.07),rgba(255,255,255,.015) 48%,transparent 72%);opacity:.72}
-.can-stage canvas{position:absolute;inset:0;z-index:3}
-.backdrop,.liquid-surface{filter:saturate(1.08) contrast(1.025)}
-.liquid-shade-citrus{background:linear-gradient(100deg,#f5f6414d 5%,transparent 48%,#00391855 100%)}
-.liquid-shade-berry{background:linear-gradient(90deg,#24073766,#79169b05 50%,#39084d5c)}
-.liquid-shade-tropical{background:linear-gradient(100deg,#ffb31b3d,transparent 48%,#762c075c)}
-.backdrop-citrus:after{background:linear-gradient(100deg,#f5f6414d 5%,transparent 48%,#00391855 100%)}
-.backdrop-tropical:after{background:linear-gradient(100deg,#ffb31b3d,transparent 48%,#762c075c)}
+.hero-spotlight,.hero-mist{position:absolute;pointer-events:none}
+.hero-spotlight{left:58%;top:50%;width:min(46vw,640px);aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at center,rgba(255,255,255,.32) 0%,rgba(255,255,255,.18) 24%,rgba(255,255,255,.08) 42%,rgba(255,255,255,0) 72%);filter:blur(12px);opacity:.72}
+.hero-mist{left:58%;top:50%;width:min(58vw,780px);height:min(70vh,760px);transform:translate(-50%,-50%);background:radial-gradient(ellipse at 50% 55%,rgba(255,255,255,.08),rgba(255,255,255,.02) 48%,transparent 72%);opacity:.8}
+.fresh-fruit{position:absolute;width:min(34vw,440px);height:min(31vw,390px);right:4%;bottom:3.5%;transform:none;z-index:2}
+.fresh-fruit img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .55s;filter:drop-shadow(0 18px 18px rgba(4,28,21,.22))}
+.photo-hero-can{left:71.5%;top:49%;height:min(66vh,680px)!important;max-height:680px;z-index:3;aspect-ratio:2/3!important;transform-style:preserve-3d;will-change:transform,left,top}
+.hero-can-stack{position:relative;width:100%;height:100%;transform-style:preserve-3d}
+.photo-hero-can img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 52%;backface-visibility:hidden;will-change:transform,opacity;transition:opacity .28s linear;filter:drop-shadow(0 28px 30px rgba(0,32,19,.20)) drop-shadow(-3px 5px 8px rgba(255,255,255,.15)) saturate(1.04) contrast(1.025)}
+.can-stage.is-photo-hero canvas{display:none}
+.can-stage.is-photo-hero .can-fallback{opacity:1}
+.backdrop,.liquid-surface{filter:saturate(1.14) contrast(1.045)}
+.liquid-shade-citrus{background:linear-gradient(100deg,#f5f64170 5%,#e6e91418 45%,#00391888 100%)}
+.liquid-shade-berry{background:linear-gradient(90deg,#24073780,#79169b08 50%,#39084d70)}
+.liquid-shade-tropical{background:linear-gradient(100deg,#ffb31b50,#ff931500 45%,#762c0780)}
+.backdrop-citrus:after{background:linear-gradient(100deg,#f5f64170 5%,#e6e91418 45%,#00391888 100%)}
+.backdrop-tropical:after{background:linear-gradient(100deg,#ffb31b50,#ff931500 45%,#762c0780)}
 .display{font-style:italic;font-weight:900;letter-spacing:-.045em}
 .flavor-info>p{opacity:1;font-size:14px;line-height:1.65}
 .flavor-info .text-link{border:0;background:var(--ink);color:var(--accent);padding:15px 23px;border-radius:40px;margin-top:20px;box-shadow:0 10px 24px #08291918}
@@ -25,20 +31,51 @@
 .flavor-detail{padding:30px;border-radius:24px;background:#e8ebdc;border:0}
 .footer{background:radial-gradient(ellipse at 80% 100%,#286936,transparent 60%),#062d20}
 .footer-brand{color:#e4ef71}
-@media(min-width:761px){.flavor-section{padding-top:135px}.display{font-size:clamp(98px,10.8vw,185px)}.flavor-berry .display{font-size:clamp(80px,9vw,155px)}.flavor-tropical .display{font-size:clamp(80px,8.5vw,148px)}}
+.can-fallback img{filter:drop-shadow(0 22px 28px rgba(0,32,19,.22))}
+@media(min-width:761px){.can-inspector{bottom:8%}.flavor-section{padding-top:135px}.display{font-size:clamp(98px,10.8vw,185px)}.flavor-berry .display{font-size:clamp(80px,9vw,155px)}.flavor-tropical .display{font-size:clamp(80px,8.5vw,148px)}}
+@media(max-width:760px){
+ .hero-spotlight{left:50%;top:37%;width:min(95vw,460px)}
+ .hero-mist{left:50%;top:38%;width:min(118vw,560px);height:min(76svh,620px)}
+ .photo-hero-can{left:50%;top:40%;height:min(44svh,390px)!important}
+ .fresh-fruit{width:min(50vw,270px);height:min(43vw,225px);right:2%;bottom:18%}
+ .display{font-style:italic}
+ .flavor-info>p{font-size:12px}
+ .flavor-info .text-link{padding:12px 18px;margin-top:14px}
+ .liquid-shade-citrus{background:linear-gradient(180deg,#f5f64150,transparent 45%,#d2e13388)}
+ .liquid-shade-tropical{background:linear-gradient(180deg,#ffb31b40,transparent 45%,#ffb33388)}
+ .flavor-card{border-radius:18px}
+ .flavor-detail{padding:22px 18px}
+ .flavor-detail>div{min-width:180px}
+ .flavor-detail .pill-button{margin-left:0}
+}
+@media(min-width:761px){.theme-berry .fresh-fruit,.theme-tropical .fresh-fruit{right:6%;left:auto}}
+@media(prefers-reduced-motion:reduce){.fresh-fruit img{transition:none}.photo-hero-can{will-change:auto}.photo-hero-can img{transition:none;transform:none!important}}
+.label-loading{grid-column:1/-1;padding:80px 0;text-align:center;font-size:12px;font-weight:700;letter-spacing:.08em;opacity:.65}
+.can-stage canvas{position:absolute;inset:0;z-index:3}
+.hero-spotlight,.hero-mist{z-index:0}
+.can-fallback{z-index:3}
 @media(min-width:761px) and (max-width:1100px){
  .flavor-section{padding-left:clamp(28px,4vw,46px);padding-right:clamp(28px,4vw,46px)}
  .flavor-berry .section-copy{width:48%;max-width:430px}
  .flavor-berry .display{font-size:clamp(58px,7.2vw,79px);line-height:.82;margin-bottom:26px}
  .flavor-tropical .display{font-size:clamp(58px,7vw,77px);line-height:.84}
  .flavor-info{max-width:300px}
- .nav{padding-left:32px;padding-right:32px}.nav nav{gap:14px}.nav-link{padding:10px 14px}.nav-cta{padding:14px 18px;gap:14px}
+ .fresh-fruit{width:min(29vw,320px);height:min(27vw,300px);right:2.5%;bottom:5%}
+ .nav{padding-left:32px;padding-right:32px}
+ .nav nav{gap:14px}
+ .nav-link{padding:10px 14px}
+ .nav-cta{padding:14px 18px;gap:14px}
 }
-@media(max-width:760px){
- .hero-spotlight{left:50%;top:37%;width:min(95vw,460px)}
- .hero-mist{left:50%;top:38%;width:min(118vw,560px);height:min(76svh,620px)}
- .display{font-style:italic}.flavor-info>p{font-size:12px}.flavor-info .text-link{padding:12px 18px;margin-top:14px}
- .liquid-shade-citrus{background:linear-gradient(180deg,#f5f64138,transparent 45%,#d2e13355)}
- .liquid-shade-tropical{background:linear-gradient(180deg,#ffb31b30,transparent 45%,#ffb33355)}
- .flavor-card{border-radius:18px}.flavor-detail{padding:22px 18px}.flavor-detail>div{min-width:180px}.flavor-detail .pill-button{margin-left:0}
+.fidelity-fallback .hero-can-stack{position:absolute;inset:0}
+.fidelity-fallback .hero-can-stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .16s linear;filter:drop-shadow(0 24px 28px rgba(0,32,19,.20));will-change:opacity}
+@media(prefers-reduced-motion:reduce){.fidelity-fallback .hero-can-stack img{transition:none}}
+/* Final hero cleanup: once WebGL is ready, the packshot is loading fallback only. */
+.can-stage.is-ready .fidelity-fallback{opacity:0!important;visibility:hidden!important}
+@media(min-width:1101px){
+ .theme-berry .fresh-fruit{width:min(27vw,360px);height:min(25vw,330px);right:-1.5%;bottom:2.5%}
+ .theme-tropical .fresh-fruit{width:min(29vw,385px);height:min(27vw,350px);right:1%;bottom:2.5%}
+}
+@media(min-width:761px) and (max-width:1100px){
+ .theme-berry .fresh-fruit{width:min(24vw,260px);height:min(22vw,245px);right:-2%;bottom:4%}
+ .theme-tropical .fresh-fruit{width:min(25vw,275px);height:min(23vw,255px);right:0;bottom:4%}
 }
