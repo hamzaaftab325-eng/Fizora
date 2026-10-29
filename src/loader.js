@@ -10,7 +10,8 @@ if(loader){
  const started=performance.now();
  const minimum=950;
  let progress=0;
- let loaded=document.readyState==='complete';
+ let pageLoaded=document.readyState==='complete';
+ let canReady=window.__fizoraCanReady===true;
  let raf=0;
  let finished=false;
  let revealed=false;
@@ -27,7 +28,7 @@ if(loader){
      root.classList.remove('page-entered');
     },1550);
    }));
-  },150);
+  },120);
  };
 
  const finish=()=>{
@@ -48,22 +49,27 @@ if(loader){
 
  const tick=()=>{
   if(!loader.isConnected)return;
-  const ceiling=loaded?100:92;
+  const ready=pageLoaded&&canReady;
+  const ceiling=ready?100:92;
   const speed=progress<58?.85:progress<82?.34:.10;
   progress=Math.min(ceiling,progress+speed);
   const shown=Math.floor(progress);
   if(bar)bar.style.width=`${shown}%`;
   if(count)count.textContent=String(shown).padStart(2,'0');
-  if(loaded&&progress>=99){finish();return;}
+  if(ready&&progress>=99){finish();return;}
   raf=requestAnimationFrame(tick);
  };
 
- const onLoad=()=>{loaded=true;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);};
- if(loaded)onLoad();else window.addEventListener('load',onLoad,{once:true});
+ const restart=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);};
+ const onLoad=()=>{pageLoaded=true;restart();};
+ const onCanReady=()=>{canReady=true;restart();};
+ if(pageLoaded)onLoad();else window.addEventListener('load',onLoad,{once:true});
+ if(!canReady)window.addEventListener('fizora:can-ready',onCanReady,{once:true});
  raf=requestAnimationFrame(tick);
 
+ // Safety valve: never trap the user behind the loader if WebGL is unavailable.
  setTimeout(()=>{
-  if(loader.isConnected&&!finished){loaded=true;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);}
+  if(loader.isConnected&&!finished){pageLoaded=true;canReady=true;restart();}
  },4500);
 }else{
  root.classList.add('page-entered');
