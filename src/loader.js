@@ -12,13 +12,27 @@ if(loader){
  let progress=0;
  let loaded=document.readyState==='complete';
  let raf=0;
+ let finished=false;
+ let revealed=false;
 
  const revealPage=()=>{
-  requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('page-entered')));
-  window.dispatchEvent(new CustomEvent('fizora:page-enter'));
+  if(revealed)return;
+  revealed=true;
+  setTimeout(()=>{
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    root.classList.add('page-entered');
+    window.dispatchEvent(new CustomEvent('fizora:page-enter'));
+    setTimeout(()=>{
+     root.classList.remove('page-reveal-ready');
+     root.classList.remove('page-entered');
+    },1550);
+   }));
+  },150);
  };
 
  const finish=()=>{
+  if(finished)return;
+  finished=true;
   const elapsed=performance.now()-started;
   const wait=Math.max(0,minimum-elapsed);
   setTimeout(()=>{
@@ -49,8 +63,12 @@ if(loader){
  raf=requestAnimationFrame(tick);
 
  setTimeout(()=>{
-  if(loader.isConnected){loaded=true;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);}
+  if(loader.isConnected&&!finished){loaded=true;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);}
  },4500);
 }else{
  root.classList.add('page-entered');
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  root.classList.remove('page-reveal-ready');
+  root.classList.remove('page-entered');
+ }));
 }
