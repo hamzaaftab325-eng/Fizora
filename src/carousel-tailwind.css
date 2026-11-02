@@ -1,0 +1,13 @@
+@layer theme, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+#carousel-root{position:relative;z-index:70}
+#root{position:relative;z-index:1}
+#carousel-root button,#carousel-root a{-webkit-tap-highlight-color:transparent}
+#carousel-root img{user-select:none;-webkit-user-drag:none}
+
+@media(prefers-reduced-motion:reduce){
+ #carousel-root *{scroll-behavior:auto!important}
+ #carousel-root [style*="650ms"]{transition-duration:.01ms!important}
+}

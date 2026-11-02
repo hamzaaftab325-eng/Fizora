@@ -10,11 +10,15 @@
     "test": "node --test src/*.test.js"
   },
   "dependencies": {
+    "lucide-react": "1.66.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "three": "0.160.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "4.3.3",
+    "tailwindcss": "4.3.3",
+    "typescript": "7.0.2",
     "vite": "6.3.6"
   },
   "packageManager": "pnpm@10.11.0",
