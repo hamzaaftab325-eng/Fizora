@@ -10,7 +10,7 @@ import './campaign.css';
 const Arrow=({down=false})=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d={down?'M12 4v16m-6-6 6 6 6-6':'M4 12h16m-6-6 6 6-6 6'}/></svg>;
 const Spark=()=> <svg viewBox="0 0 40 40" fill="currentColor" aria-hidden="true"><path d="M20 0l4.4 13.8L37 7l-6.8 12.6L40 24l-14.3 1.7L24 40l-4.4-9.8L7 37l6.8-12.6L0 20l14.3-1.7z"/></svg>;
 function App(){
- const root=useRef(),canvas=useRef(),stage=useRef(),backgrounds=useRef([]),sections=useRef([]),collection=useRef(),controller=useRef(null),fallback=useRef(),liquidHost=useRef(),liquidFx=useRef(),liquidShade=useRef([]),fruitImages=useRef([]),canImages=useRef([]),spotlight=useRef(),mist=useRef();
+ const root=useRef(),canvas=useRef(),stage=useRef(),backgrounds=useRef([]),sections=useRef([]),collection=useRef(),controller=useRef(null),fallback=useRef(),liquidHost=useRef(),liquidFx=useRef(),liquidShade=useRef([]),canImages=useRef([]),spotlight=useRef(),mist=useRef();
  const [active,setActive]=useState(0),[selected,setSelected]=useState(0),[ready,setReady]=useState(false),[paused,setPaused]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
  const [labels,setLabels]=useState([]),[labelFlavor,setLabelFlavor]=useState(0);
  const labelDialog=useRef();
@@ -45,7 +45,6 @@ function App(){
    const packshotOps=[0,0,0];packshotOps[state.i]=1-state.t;packshotOps[state.i+1]=state.t;canImages.current.forEach((img,i)=>{if(img)img.style.opacity=packshotOps[i]||0;});
    if(spotlight.current){spotlight.current.style.left=`${flightX}%`;spotlight.current.style.top=`calc(${mobile?40:50}% + ${dive*.42}px)`;}
    if(mist.current){mist.current.style.left=`${flightX}%`;mist.current.style.top=`calc(${mobile?40:50}% + ${dive*.3}px)`;}
-   fruitImages.current.forEach((img,i)=>{if(!img)return;const o=opacities[i]??0;img.style.opacity=o;img.style.transform=`translate3d(${state.x*(mobile?2:5)}px,${(1-o)*34+state.arc*8}px,0) scale(${.9+o*.1}) rotate(${(1-o)*(i===1?-3:3)}deg)`;});
    liquid?.render(state,dt,motionPaused);controller.current?.render(state,elapsed,dt,motionPaused);
   };frame=requestAnimationFrame(animate);addEventListener('resize',measure);addEventListener('pointermove',pointer,{passive:true});addEventListener('pointerdown',down,{passive:true});addEventListener('pointerup',up,{passive:true});addEventListener('pointercancel',cancel,{passive:true});
   document.fonts.ready.then(()=>{if(!dead)measure();});
@@ -57,7 +56,7 @@ function App(){
   <div className="backdrops" aria-hidden="true">{flavors.map((f,i)=><div key={f.id} className={`backdrop backdrop-${f.id}`} ref={el=>backgrounds.current[i]=el} style={{backgroundImage:`url(${f.background})`,opacity:i===0?1:0}}/>)}<div className="liquid-layer" ref={liquidHost}/><div className="liquid-shades">{flavors.map((f,i)=><div key={f.id} ref={el=>liquidShade.current[i]=el} className={`liquid-shade liquid-shade-${f.id}`} style={{opacity:i===0?1:0}}/>)}</div></div>
   <canvas className="liquid-atmosphere" ref={liquidFx} aria-hidden="true"/>
   <header className="nav"><a className="wordmark" href="#citrus" aria-label="Fizora home">FIZORA</a><nav aria-label="Main navigation"><a className="nav-link" href="#collection">Meet the flavors</a><button className="motion-toggle" onClick={()=>setPaused(p=>!p)} aria-pressed={paused} aria-label={paused?'Resume motion':'Pause motion'} title={paused?'Resume motion':'Pause motion'}>{paused?<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="m6 3 11 7-11 7z"/></svg>:<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M5 3h3v14H5zm7 0h3v14h-3z"/></svg>}</button><a className="nav-cta" href="#collection">Find your fizz <Arrow/></a></nav></header>
-  <div ref={stage} className={`can-stage ${ready?'is-ready':''}`} aria-hidden="true"><div ref={spotlight} className="hero-spotlight"/><div ref={mist} className="hero-mist"/><div className="fresh-fruit">{flavors.map((f,i)=><img ref={el=>fruitImages.current[i]=el} key={f.id} src={`/images/${f.id}-fruit.webp`} alt="" style={{opacity:i===0?1:0}}/>)}</div><canvas ref={canvas}/><div ref={fallback} className="can-fallback fidelity-fallback"><div className="hero-can-stack">{flavors.map((f,i)=><img ref={el=>canImages.current[i]=el} key={f.id} src={f.can} alt="" style={{opacity:i===0?1:0}}/>)}</div></div></div>
+  <div ref={stage} className={`can-stage ${ready?'is-ready':''}`} aria-hidden="true"><div ref={spotlight} className="hero-spotlight"/><div ref={mist} className="hero-mist"/><canvas ref={canvas}/><div ref={fallback} className="can-fallback fidelity-fallback"><div className="hero-can-stack">{flavors.map((f,i)=><img ref={el=>canImages.current[i]=el} key={f.id} src={f.can} alt="" style={{opacity:i===0?1:0}}/>)}</div></div></div>
   <main>
    <div className="story" id="flavors">
     {flavors.map((f,i)=><section key={f.id} id={f.id} ref={el=>sections.current[i]=el} className={`flavor-section flavor-${f.id}`} aria-labelledby={`${f.id}-heading`} style={{'--ink':f.ink,'--accent':f.accent}}>

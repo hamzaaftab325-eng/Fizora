@@ -8,7 +8,7 @@ root.classList.add('page-reveal-ready');
 if(loader){
  root.classList.add('is-loading');
  const started=performance.now();
- const minimum=950;
+ const minimum=800;
  let progress=0;
  let pageLoaded=document.readyState==='complete';
  let forceReveal=false;
@@ -16,6 +16,10 @@ if(loader){
  let finished=false;
  let revealed=false;
 
+ const canPreviewReady=()=>{
+  const image=document.querySelector('.can-fallback img');
+  return Boolean(image?.complete&&image.naturalWidth>0);
+ };
  const canIsReady=()=>Boolean(document.querySelector('.can-stage.is-ready canvas'));
 
  const revealPage=()=>{
@@ -28,9 +32,9 @@ if(loader){
     setTimeout(()=>{
      root.classList.remove('page-reveal-ready');
      root.classList.remove('page-entered');
-    },1550);
+    },1450);
    }));
-  },150);
+  },110);
  };
 
  const finish=()=>{
@@ -45,16 +49,16 @@ if(loader){
    loader.classList.add('is-leaving');
    root.classList.remove('is-loading');
    revealPage();
-   setTimeout(()=>loader.remove(),760);
+   setTimeout(()=>loader.remove(),720);
   },wait);
  };
 
  const tick=()=>{
   if(!loader.isConnected)return;
-  const sceneReady=canIsReady();
-  const ready=(pageLoaded&&sceneReady)||forceReveal;
+  const visualReady=canPreviewReady()||canIsReady();
+  const ready=(pageLoaded&&visualReady)||forceReveal;
   const ceiling=ready?100:92;
-  const speed=progress<58?.85:progress<82?.34:.10;
+  const speed=progress<58?.9:progress<82?.38:.12;
   progress=Math.min(ceiling,progress+speed);
   const shown=Math.floor(progress);
   if(bar)bar.style.width=`${shown}%`;
@@ -67,8 +71,8 @@ if(loader){
  if(!pageLoaded)window.addEventListener('load',onLoad,{once:true});
  raf=requestAnimationFrame(tick);
 
- // Safety valve for unsupported WebGL or an unexpected asset failure.
- setTimeout(()=>{if(loader.isConnected&&!finished)forceReveal=true;},6500);
+ // Never hold the visitor on the loader if a GPU/asset path is unexpectedly slow.
+ setTimeout(()=>{if(loader.isConnected&&!finished)forceReveal=true;},3200);
 }else{
  root.classList.add('page-entered');
  requestAnimationFrame(()=>requestAnimationFrame(()=>{
